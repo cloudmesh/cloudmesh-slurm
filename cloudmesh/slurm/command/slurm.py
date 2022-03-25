@@ -16,35 +16,32 @@ class SlurmCommand(PluginCommand):
         ::
 
           Usage:
-                slurm --file=FILE
-                slurm list
+                slurm pi install [--os=OS] [--workers=WORKERS] [--mount=MOUNT] [--step=STEP]
+                slurm pi install as worker
+                slurm pi example
 
-          This command does some useful things.
+          This command installs slurm on the current PI and also worker nodes if you specify them.
+
+          TODO: how can the master be made also a worker, e.g. The slurm without worker nodes example
+                we want a new command for that "install as worker"
 
           Arguments:
               FILE   a file name
 
           Options:
               -f      specify the file
-
+              --os=OS   The operating system. SO far only RaspberryPiOS [default: RaspberryPiOS]
         """
 
-
-        # arguments.FILE = arguments['--file'] or None
 
         map_parameters(arguments, "file")
 
         VERBOSE(arguments)
 
-        m = Manager()
-
         if arguments.file:
             print("option a")
-            m.list(path_expand(arguments.file))
 
         elif arguments.list:
             print("option b")
-            m.list("just calling list without parameter")
 
-        Console.error("This is just a sample")
         return ""
