@@ -15,7 +15,7 @@ class SlurmCommand(PluginCommand):
         ::
 
           Usage:
-                slurm pi install [-i] [--os=OS] [--workers=WORKERS] [--mount=MOUNT] [--step=STEP]
+                slurm pi install [--interactive] [--os=OS] [--workers=WORKERS] [--mount=MOUNT] [--step=STEP]
                 slurm pi install as worker
                 slurm pi example --n=NUMBER [COMMAND]
 
@@ -28,9 +28,9 @@ class SlurmCommand(PluginCommand):
               COMMAND  te surm command to be executed [default: salloc]
 
           Options:
-              -f        specify the file
-              -i        asks questions
-              --os=OS   The operating system. SO far only RaspberryPiOS [default: RaspberryPiOS]
+              -f                   specify the file
+              --interactive        asks questions
+              --os=OS              The operating system. SO far only RaspberryPiOS [default: RaspberryPiOS]
 
           Description:
 
@@ -38,7 +38,7 @@ class SlurmCommand(PluginCommand):
 
               pip install cloudmesh-slurm
               cms help
-              cms slurm pi install -i
+              cms slurm pi install --interactive
 
             Example:
               cms slurm example --n=4 [COMMAND]
