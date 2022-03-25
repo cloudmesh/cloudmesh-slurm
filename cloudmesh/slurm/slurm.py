@@ -36,6 +36,7 @@ from cloudmesh.burn.sdcard import SDCard
 # workers = "red0[1-3]"
 # manager = "red"
 
+
 class Slurm:
 
     @staticmethod
@@ -74,6 +75,7 @@ class Slurm:
 
 
     # read the file user_input_workers
+    @staticmethod
     def read_user_input_workers(manager):
         results = Host.ssh(hosts=manager, command='cat user_input_workers')
         print(Printer.write(results))
@@ -84,6 +86,7 @@ class Slurm:
 
 
     # tell user to ssh back to manager on reboot and reboot
+    @staticmethod
     def tell_user_rebooting():
         banner('The cluster is rebooting. Wait a minute for the Pis to come '
                'back online and ssh into the manager. Then,'
@@ -92,6 +95,7 @@ class Slurm:
 
 
     # function that returns ip of pi
+    @staticmethod
     def get_IP(manager):
         results = Host.ssh(hosts=manager, command="/sbin/ifconfig eth0 | grep 'inet' | cut -d: -f2")
         print(Printer.write(results))
@@ -112,7 +116,7 @@ class Slurm:
 
     # function that checks to see if a step has been run
 
-
+    @staticmethod
     def check_step(step_number, device):
         step_number_string = str(step_number)
         just_the_step = f"step{step_number_string}"
@@ -126,7 +130,7 @@ class Slurm:
                 entry["stderr"] = "False"
         return step_done
 
-
+    @staticmethod
     def try_installing_package(command_for_package, listOfWorkers):
         for worker in listOfWorkers:
             success = False
@@ -147,7 +151,7 @@ class Slurm:
                         banner(f"Package installation has succeeded for {worker}.")
                 time.sleep(5)
 
-
+    @staticmethod
     def try_downloading_from_github(command_for_download, listOfWorkers):
         for worker in listOfWorkers:
             success = False
@@ -176,13 +180,13 @@ class Slurm:
     #  no workers = "03" # "3" "01000" 00001-01000
     # output
     #  red000  -> red, red001, red002, red003
-
+    @staticmethod
     def step0():
         StopWatch.start("Current section time")
         banner("Welcome to SLURM Installation. Initializing preliminary steps.")
         print("We assume that you run this script on the manager Pi and that your worker naming schema is \n"
               "incremental in nature. \n")
-        manager = managerNamer()
+        manager = Slurm.managerNamer()
         user_input_workers = input(str('''Please enter the naming schema of your workers. For example, if you have 3
             workers then enter "red0[1-3]". Another example for 7 workers is "worker[1-7]" (do not include
             quotation marks): \n'''))
@@ -193,25 +197,25 @@ class Slurm:
         print(Printer.write(results))
 
         # intro and asking for workers from user
-        workers = read_user_input_workers(manager)
+        workers = Slurm.read_user_input_workers(manager)
 
-        hosts = hostsVariable(manager, workers)
+        hosts = Slurm.hostsVariable(manager, workers)
 
         results = Host.ssh(hosts=hosts, command="touch step0")
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
 
-
+    @staticmethod
     def step1():
         StopWatch.start("Current section time")
         # intro and asking for workers from user
         banner("Initializing Step 1 now.")
-        manager = managerNamer()
+        manager = Slurm.managerNamer()
 
-        workers = read_user_input_workers(manager)
+        workers = Slurm.read_user_input_workers(manager)
 
-        hosts = hostsVariable(manager, workers)
+        hosts = Slurm.hostsVariable(manager, workers)
 
         banner("Now updating packages. This may take a while.")
         results = Host.ssh(hosts=hosts, command="sudo apt-get update")
@@ -225,19 +229,19 @@ class Slurm:
 
         print(listOfWorkers)
         listOfManager = [manager]
-        try_installing_package("sudo apt install ntpdate -y", listOfManager)
-        try_installing_package("sudo apt install ntpdate -y", listOfWorkers)
+        Slurm.try_installing_package("sudo apt install ntpdate -y", listOfManager)
+        Slurm.try_installing_package("sudo apt install ntpdate -y", listOfWorkers)
         results = Host.ssh(hosts=hosts, command="touch step1")
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
-        tell_user_rebooting()
+        Slurm.tell_user_rebooting()
 
-
+    @staticmethod
     def step2():
         StopWatch.start("Current section time")
         banner("Initializing Step 2 now.")
-        manager = managerNamer()
+        manager = Slurm.managerNamer()
         if not yn_choice(
                 'Please insert USB storage medium into top USB 3.0 (blue) port on manager pi and press y when done'):
             Console.error("You pressed no but the script is continuing as normal...")
@@ -251,9 +255,9 @@ class Slurm:
         '''
 
         # executing reading of workers
-        workers = read_user_input_workers(manager)
+        workers = Slurm.read_user_input_workers(manager)
 
-        hosts = hostsVariable(manager, workers)
+        hosts = Slurm.hostsVariable(manager, workers)
 
         card = SDCard()
         card.info()
@@ -306,8 +310,8 @@ class Slurm:
             sudo chmod -R 766 /clusterfs
             sudo apt install nfs-kernel-server -y
             """)
-        hostexecute(script, manager)
-        trueIP = get_IP(manager)
+        Slurm.hostexecute(script, manager)
+        trueIP = Slurm.get_IP(manager)
         results = Host.ssh(hosts=manager, command=f'''sudo cat /etc/exports''')
         print(Printer.write(results))
         for entry in results:
@@ -320,13 +324,13 @@ class Slurm:
                                command=command)
             print(Printer.write(results))
 
-        hostexecute("sudo exportfs -a", manager)
+        Slurm.hostexecute("sudo exportfs -a", manager)
 
         # make array with list of workers
         listOfWorkers = Parameter.expand(workers)
 
         print(listOfWorkers)
-        try_installing_package("sudo apt install nfs-common -y", listOfWorkers)
+        Slurm.try_installing_package("sudo apt install nfs-common -y", listOfWorkers)
         results = Host.ssh(hosts=workers, command='sudo mkdir /clusterfs')
         print(Printer.write(results))
         results = Host.ssh(hosts=workers, command='sudo chown nobody.nogroup /clusterfs')
@@ -348,48 +352,48 @@ class Slurm:
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
-        tell_user_rebooting()
+        Slurm.tell_user_rebooting()
 
-
+    @staticmethod
     def step3():
         StopWatch.start("Current section time")
         banner("Initializing Step 3 now.")
 
-        manager = managerNamer()
+        manager = Slurm.managerNamer()
         # getting ip in case step 2 has not run
-        trueIP = get_IP(manager)
+        trueIP = Slurm.get_IP(manager)
 
         # executing reading of workers
-        workers = read_user_input_workers(manager)
+        workers = Slurm.read_user_input_workers(manager)
 
-        hosts = hostsVariable(manager, workers)
+        hosts = Slurm.hostsVariable(manager, workers)
 
         listOfWorkers = Parameter.expand(workers)
         print(listOfWorkers)
         print(hosts)
         listOfManager = [manager]
-        trueIP = get_IP(manager)
-        try_installing_package("sudo apt-get install python3-venv python3-wheel python3-dev build-essential libopenmpi-dev "
+        trueIP = Slurm.get_IP(manager)
+        Slurm.try_installing_package("sudo apt-get install python3-venv python3-wheel python3-dev build-essential libopenmpi-dev "
                                "-y",
                                listOfWorkers)
-        try_installing_package("sudo apt-get install python3-venv python3-wheel python3-dev build-essential libopenmpi-dev "
+        Slurm.try_installing_package("sudo apt-get install python3-venv python3-wheel python3-dev build-essential libopenmpi-dev "
                                "-y",
                                listOfManager)
         results = Host.ssh(hosts=workers, command='python3 -m venv ~/ENV3')
         print(Printer.write(results))
-        try_installing_package("sudo apt-get install openmpi-bin -y", listOfWorkers)
-        try_installing_package("sudo apt-get install openmpi-bin -y", listOfManager)
+        Slurm.try_installing_package("sudo apt-get install openmpi-bin -y", listOfWorkers)
+        Slurm.try_installing_package("sudo apt-get install openmpi-bin -y", listOfManager)
         results = Host.ssh(hosts=hosts, command='sudo ldconfig')
         print(Printer.write(results))
         results = Host.ssh(hosts=hosts, command='ENV3/bin/pip install mpi4py')
         print(Printer.write(results))
-        try_installing_package("sudo apt install libevent-dev autoconf git libtool flex libmunge-dev munge -y",
+        Slurm.try_installing_package("sudo apt install libevent-dev autoconf git libtool flex libmunge-dev munge -y",
                                listOfManager)
-        try_installing_package("sudo apt install libevent-dev autoconf git libtool flex libmunge-dev munge -y",
+        Slurm.try_installing_package("sudo apt install libevent-dev autoconf git libtool flex libmunge-dev munge -y",
                                listOfWorkers)
         results = Host.ssh(hosts=hosts, command='sudo mkdir -p /usr/lib/pmix/build/2.1 /usr/lib/pmix/install/2.1')
         print(Printer.write(results))
-        try_downloading_from_github("cd /usr/lib/pmix && sudo git clone https://github.com/openpmix/openpmix.git source "
+        Slurm.try_downloading_from_github("cd /usr/lib/pmix && sudo git clone https://github.com/openpmix/openpmix.git source "
                                     "&& cd source/ && git branch -a && sudo git checkout v2.1 && "
                                     "sudo git pull", listOfManager)
         script = textwrap.dedent(
@@ -398,27 +402,28 @@ class Slurm:
                 sudo systemctl start nfs-server.service
                 sudo mount -a
                 """)
-        hostexecute(script, manager)
+        Slurm.hostexecute(script, manager)
         results = Host.ssh(hosts=hosts, command="touch step3")
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
-        tell_user_rebooting()
+        Slurm.tell_user_rebooting()
 
+    @staticmethod
     def step4():
         StopWatch.start("Current section time")
         banner("Initializing Step 4 now.")
-        manager = managerNamer()
+        manager = Slurm.managerNamer()
         # executing reading of workers
-        workers = read_user_input_workers(manager)
+        workers = Slurm.read_user_input_workers(manager)
 
-        hosts = hostsVariable(manager, workers)
+        hosts = Slurm.hostsVariable(manager, workers)
 
         listOfWorkers = Parameter.expand(workers)
         print(listOfWorkers)
         print(hosts)
 
-        trueIP = get_IP(manager)
+        trueIP = Slurm.get_IP(manager)
 
         if not yn_choice('The script will now install SLURM and MPI. '
                          'The process may take upwards of half an hour '
@@ -470,7 +475,7 @@ class Slurm:
             sudo sed -i 's/SlurmctldHost=workstation/SlurmctldHost={manager}({trueIP})/g' /usr/local/etc/slurm.conf
             sudo sed -i "$(( $(wc -l </usr/local/etc/slurm.conf)-2+1 )),$ d" /usr/local/etc/slurm.conf
             """)
-        hostexecute(script, manager)
+        Slurm.hostexecute(script, manager)
         results = Host.ssh(hosts=workers, command="cat /proc/sys/kernel/hostname")
         print(Printer.write(results))
         hostnames = []
@@ -517,7 +522,7 @@ class Slurm:
             sudo systemctl enable munge
             sudo systemctl start munge
             """)
-        hostexecute(script, manager)
+        Slurm.hostexecute(script, manager)
         results = Host.ssh(hosts=workers, command='sudo cp /clusterfs/slurm.conf /usr/local/etc/slurm.conf')
         print(Printer.write(results))
         results = Host.ssh(hosts=hosts, command='sudo chown -R slurm:slurm /var/spool/')
@@ -557,30 +562,31 @@ class Slurm:
     # StopWatch.start("Total Runtime")
 
     # Here begins the script aside from the function definitions. In this part we run the steps by calling functions.
+    @staticmethod
     def install():
         banner("SLURM on Raspberry Pi Cluster Installation")
 
         # executing reading of device names.
 
-        manager = managerNamer()
+        manager = Slurm.managerNamer()
 
-        step0done = check_step(0, manager)
+        step0done = Slurm.check_step(0, manager)
         if not step0done:
-            step0()
+            Slurm.step0()
 
-        workers = read_user_input_workers(manager)
+        workers = Slurm.read_user_input_workers(manager)
 
-        hosts = hostsVariable(manager, workers)
+        hosts = Slurm.hostsVariable(manager, workers)
 
         steps = [
-            (1, step1),
-            (2, step2),
-            (3, step3),
-            (4, step4)
+            (1, Slurm.step1),
+            (2, Slurm.step2),
+            (3, Slurm.step3),
+            (4, Slurm.step4)
         ]
 
         for i, step in steps:
-            if not check_step(i, hosts):
+            if not Slurm.check_step(i, hosts):
                 banner(f"Step {i} is not done. Performing step {i} now.")
                 step()
 
