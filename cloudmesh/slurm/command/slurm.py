@@ -17,7 +17,7 @@ class SlurmCommand(PluginCommand):
           Usage:
                 slurm pi install [-i] [--os=OS] [--workers=WORKERS] [--mount=MOUNT] [--step=STEP]
                 slurm pi install as worker
-                slurm pi example
+                slurm pi example --n=NUMBER [COMMAND]
 
           This command installs slurm on the current PI and also worker nodes if you specify them.
 
@@ -25,7 +25,7 @@ class SlurmCommand(PluginCommand):
                 we want a new command for that "install as worker"
 
           Arguments:
-              FILE   a file name
+              COMMAND  te surm command to be executed [default: salloc]
 
           Options:
               -f        specify the file
@@ -34,10 +34,22 @@ class SlurmCommand(PluginCommand):
 
           Description:
 
-            pip install cloudmesh-slurm
-            cms help
-            cms slurm pi install -i
-        
+            Install:
+
+              pip install cloudmesh-slurm
+              cms help
+              cms slurm pi install -i
+
+            Example:
+              cms slurm example --n=4 [COMMAND]
+
+              MODE is one of salloc, srun, sbatch
+
+              will run the command
+
+                salloc -N 4 mpiexec python -m mpi4py.bench helloworld
+
+
 
         """
 
