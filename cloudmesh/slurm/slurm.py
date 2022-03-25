@@ -1,14 +1,13 @@
 #!/usr/bin/env python
-#
-# PLEASE DO NOT EDIT IT DIRECTLY ON cloudmesh.github.io
-#
-# Instead, if modifications are needed, modify it here
+##
+# This programm is based from
 #
 # * https://github.com/cloudmesh/get/blob/main/pi/slurm/index.html
 #
+# if you use the get command you can do similar things just by saying
+#
 #   curl -Ls http://cloudmesh.github.io/get/pi/slurm | python
 #
-# <pre>
 
 from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.util import banner
@@ -29,6 +28,9 @@ import subprocess
 from cloudmesh.burn.usb import USB
 from cloudmesh.burn.sdcard import SDCard
 
+#
+# This can be used as cloudmesh.slurm.slurm.install()
+#
 
 # hosts = "red,red0[1-3]"
 # workers = "red0[1-3]"
@@ -542,32 +544,32 @@ def step4():
 # StopWatch.start("Total Runtime")
 
 # Here begins the script aside from the function definitions. In this part we run the steps by calling functions.
+def install():
+    banner("SLURM on Raspberry Pi Cluster Installation")
 
-banner("SLURM on Raspberry Pi Cluster Installation")
+    # executing reading of device names.
 
-# executing reading of device names.
+    manager = managerNamer()
 
-manager = managerNamer()
+    step0done = check_step(0, manager)
+    if not step0done:
+        step0()
 
-step0done = check_step(0, manager)
-if not step0done:
-    step0()
+    workers = read_user_input_workers(manager)
 
-workers = read_user_input_workers(manager)
+    hosts = hostsVariable(manager, workers)
 
-hosts = hostsVariable(manager, workers)
+    steps = [
+        (1, step1),
+        (2, step2),
+        (3, step3),
+        (4, step4)
+    ]
 
-steps = [
-    (1, step1),
-    (2, step2),
-    (3, step3),
-    (4, step4)
-]
-
-for i, step in steps:
-    if not check_step(i, hosts):
-        banner(f"Step {i} is not done. Performing step {i} now.")
-        step()
+    for i, step in steps:
+        if not check_step(i, hosts):
+            banner(f"Step {i} is not done. Performing step {i} now.")
+            step()
 
 
 '''
@@ -584,5 +586,3 @@ print(results4)
 StopWatch.stop("Total Runtime")
 StopWatch.benchmark()
 '''
-
-# </pre>

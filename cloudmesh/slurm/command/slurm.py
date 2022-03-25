@@ -1,6 +1,5 @@
 from cloudmesh.shell.command import command
 from cloudmesh.shell.command import PluginCommand
-from cloudmesh.slurm.api.manager import Manager
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import path_expand
 from pprint import pprint
@@ -16,7 +15,7 @@ class SlurmCommand(PluginCommand):
         ::
 
           Usage:
-                slurm pi install [--os=OS] [--workers=WORKERS] [--mount=MOUNT] [--step=STEP]
+                slurm pi install [-i] [--os=OS] [--workers=WORKERS] [--mount=MOUNT] [--step=STEP]
                 slurm pi install as worker
                 slurm pi example
 
@@ -29,8 +28,17 @@ class SlurmCommand(PluginCommand):
               FILE   a file name
 
           Options:
-              -f      specify the file
+              -f        specify the file
+              -i        asks questions
               --os=OS   The operating system. SO far only RaspberryPiOS [default: RaspberryPiOS]
+
+          Description:
+
+            pip install cloudmesh-slurm
+            cms help
+            cms slurm pi install -i
+        
+
         """
 
 
