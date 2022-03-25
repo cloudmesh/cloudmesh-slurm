@@ -49,6 +49,18 @@ class SlurmCommand(PluginCommand):
 
                 salloc -N 4 mpiexec python -m mpi4py.bench helloworld
 
+              API:
+
+                from cloudmesh.slurm.slurm import Slurm
+                from cloudmesh.slurm import Slurm
+
+                Slurm.install()
+
+                in case you use self
+
+                slurm = Slurm()    slef instead of Slurm
+                slurm.install
+
 
 
         """
