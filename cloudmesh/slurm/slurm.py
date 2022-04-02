@@ -603,6 +603,8 @@ class Slurm:
             ]
 
         for i, step in steps:
+            print(i, step)
+            print(Slurm.check_step(i, hosts))
             if not Slurm.check_step(i, hosts):
                 banner(f"Step {i} is not done. Performing step {i} now.")
                 step()
