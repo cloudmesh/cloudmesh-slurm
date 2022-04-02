@@ -87,7 +87,7 @@ class Slurm:
 
     # tell user to ssh back to manager on reboot and reboot
     @staticmethod
-    def tell_user_rebooting():
+    def tell_user_rebooting(hosts):
         banner('The cluster is rebooting. Wait a minute for the Pis to come '
                'back online and ssh into the manager. Then,'
                ' rerun the script by issuing "./install_slurm.py" to continue.')
@@ -237,7 +237,7 @@ class Slurm:
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
-        Slurm.tell_user_rebooting()
+        Slurm.tell_user_rebooting(hosts)
 
     @staticmethod
     def step2_setup_shared_file_system(): # step2_setup_shared_file_system
@@ -354,7 +354,7 @@ class Slurm:
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
-        Slurm.tell_user_rebooting()
+        Slurm.tell_user_rebooting(hosts)
 
     @staticmethod
     def step3_install_openmpi(): # step3_install_openmpi
@@ -409,7 +409,7 @@ class Slurm:
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
-        Slurm.tell_user_rebooting()
+        Slurm.tell_user_rebooting(hosts)
 
     @staticmethod
     def step4_install_pmix_and_slurm(): # step4_install_pmix_and_slurm
