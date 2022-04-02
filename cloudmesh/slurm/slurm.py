@@ -195,7 +195,7 @@ class Slurm:
             user_input_workers = workers
         results = Host.ssh(hosts=manager, command="touch user_input_workers")
         print(Printer.write(results))
-        results = Host.ssh(hosts=manager, command=f'''echo '{user_input_workers}' >> user_input_workers''')
+        results = Host.ssh(hosts=manager, command=f"echo '{user_input_workers}' >> user_input_workers")
         print(Printer.write(results))
 
         # intro and asking for workers from user
@@ -240,7 +240,7 @@ class Slurm:
         Slurm.tell_user_rebooting(hosts)
 
     @staticmethod
-    def step2_setup_shared_file_system(): # step2_setup_shared_file_system
+    def step2_setup_shared_file_system(mount=None): # step2_setup_shared_file_system
         StopWatch.start("Current section time")
         banner("Initializing Step 2 now.")
         manager = Slurm.managerNamer()
@@ -261,16 +261,20 @@ class Slurm:
 
         hosts = Slurm.hostsVariable(manager, workers)
 
-        card = SDCard()
-        card.info()
-        USB.check_for_readers()
-        print('Please enter the device path e.g. "/dev/sda" or enter no input to default to /dev/sda (remember, do not add '
-              'quotation marks)')
-        print('The device of the path you enter WILL BE FORMATTED and used as cluster file storage for SLURM config:')
-        device = input()
-        if device == '':
-            device = '/dev/sda'
-        print(device)
+        if not mount:
+            card = SDCard()
+            card.info()
+            USB.check_for_readers()
+            print('Please enter the device path e.g. "/dev/sda" or enter no input to default to /dev/sda '
+                  '(remember, do not add quotation marks)')
+            print('The device of the path you enter WILL BE FORMATTED and used as cluster file '
+                  'storage for SLURM config:')
+            device = input()
+            if device == '':
+                device = '/dev/sda'
+            print(device)
+        else:
+            device = mount
         script = textwrap.dedent(
             f"""
             sudo mkfs.ext4 -F {device}
@@ -584,7 +588,7 @@ class Slurm:
         if step is None:
             steps = [
                 (1, Slurm.step1_os_update),
-                (2, Slurm.step2_setup_shared_file_system),
+                (2, Slurm.step2_setup_shared_file_system(mount)),
                 (3, Slurm.step3_install_openmpi),
                 (4, Slurm.step4_install_pmix_and_slurm)
             ]
