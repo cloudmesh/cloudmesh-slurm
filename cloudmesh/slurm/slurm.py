@@ -583,7 +583,6 @@ class Slurm:
 
         if step is None:
             steps = [
-                (0, Slurm.step0_identify_workers()),
                 (1, Slurm.step1_os_update),
                 (2, Slurm.step2_setup_shared_file_system),
                 (3, Slurm.step3_install_openmpi),
