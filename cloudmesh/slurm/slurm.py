@@ -244,17 +244,11 @@ class Slurm:
         StopWatch.start("Current section time")
         banner("Initializing Step 2 now.")
         manager = Slurm.managerNamer()
-        if not yn_choice(
-                'Please insert USB storage medium into top USB 3.0 (blue) port on manager pi and press y when done'):
-            Console.error("You pressed no but the script is continuing as normal...")
-            return ""
-        '''
-        os.system('lsblk')
-        if not yn_choice('Please confirm that sda1 is your USB WHICH WILL BE FORMATTED by pressing y'):
-            Console.error("Terminating: User Break")
-            return ""
-            sys.exit()
-        '''
+        if not mount:
+            if not yn_choice(
+                    'Please insert USB storage medium into top USB 3.0 (blue) port on manager pi and press y when done'):
+                Console.error("You pressed no but the script is continuing as normal...")
+                return ""
 
         # executing reading of workers
         workers = Slurm.read_user_input_workers(manager)
