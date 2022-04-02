@@ -425,11 +425,6 @@ class Slurm:
 
         trueIP = Slurm.get_IP(manager)
 
-        if not yn_choice('The script will now install SLURM and MPI. '
-                         'The process may take upwards of half an hour '
-                         'with 4 workers. Press y and Enter when ready to continue...\n'):
-            Console.error("You pressed no but the script is continuing as normal...")
-            return ""
         banner("This will take a while...")
 
         results = Host.ssh(hosts=hosts, command='sudo useradd slurm')
