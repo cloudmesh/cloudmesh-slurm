@@ -181,16 +181,18 @@ class Slurm:
     # output
     #  red000  -> red, red001, red002, red003
     @staticmethod
-    def step0_identify_workers(): # step0_identify_workers
+    def step0_identify_workers(workers=None): # step0_identify_workers
         StopWatch.start("Current section time")
         banner("Welcome to SLURM Installation. Initializing preliminary steps.")
         print("We assume that you run this script on the manager Pi and that your worker naming schema is \n"
               "incremental in nature. \n")
         manager = Slurm.managerNamer()
-        user_input_workers = input(str('''Please enter the naming schema of your workers. For example, if you have 3
-            workers then enter "red0[1-3]". Another example for 7 workers is "worker[1-7]" (do not include
-            quotation marks): \n'''))
-
+        if not workers:
+            user_input_workers = input(str('''Please enter the naming schema of your workers. For example, if you have 3
+                workers then enter "red0[1-3]". Another example for 7 workers is "worker[1-7]" (do not include
+                quotation marks): \n'''))
+        else:
+            user_input_workers = workers
         results = Host.ssh(hosts=manager, command="touch user_input_workers")
         print(Printer.write(results))
         results = Host.ssh(hosts=manager, command=f'''echo '{user_input_workers}' >> user_input_workers''')
@@ -572,7 +574,7 @@ class Slurm:
 
         step0done = Slurm.check_step(0, manager)
         if not step0done:
-            Slurm.step0_identify_workers()
+            Slurm.step0_identify_workers(workers)
 
         if interactive:
             workers = Slurm.read_user_input_workers(manager)
