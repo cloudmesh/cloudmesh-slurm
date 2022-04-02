@@ -5,6 +5,8 @@ from cloudmesh.common.util import path_expand
 from pprint import pprint
 from cloudmesh.common.debug import VERBOSE
 from cloudmesh.shell.command import map_parameters
+from cloudmesh.slurm.slurm import Slurm
+from cloudmesh.common.parameter import Parameter
 
 class SlurmCommand(PluginCommand):
 
@@ -66,14 +68,21 @@ class SlurmCommand(PluginCommand):
         """
 
 
-        map_parameters(arguments, "file")
+        map_parameters(arguments,
+                       "interactive",
+                       "os", "mount", "step", "workers")
 
         VERBOSE(arguments)
 
-        if arguments.file:
-            print("option a")
-
-        elif arguments.list:
-            print("option b")
+        if arguments.install and arguments.pi and not arguments["as"]:
+            # slurm pi install [--interactive] [--os=OS] [--workers=WORKERS] [--mount=MOUNT] [--step=STEP]
+            # arguments.workers = Parameter.expand(arguments.workers)
+            Slurm.install(workers=arguments.workers)
+        elif arguments.install and arguments["as"] and arguments.worker:
+            # slurm pi install as worker
+            Console.error("not implemented")
+        elif arguments.pi and arguments.example:
+            # slurm pi example --n=NUMBER [COMMAND]
+            Console.error  ("not implemented")
 
         return ""

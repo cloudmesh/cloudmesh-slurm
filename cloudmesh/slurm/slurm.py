@@ -181,7 +181,7 @@ class Slurm:
     # output
     #  red000  -> red, red001, red002, red003
     @staticmethod
-    def step0():
+    def step0_identify_workers(): # step0_identify_workers
         StopWatch.start("Current section time")
         banner("Welcome to SLURM Installation. Initializing preliminary steps.")
         print("We assume that you run this script on the manager Pi and that your worker naming schema is \n"
@@ -207,7 +207,7 @@ class Slurm:
         StopWatch.benchmark()
 
     @staticmethod
-    def step1():
+    def step1_os_update(): # step1_os_update
         StopWatch.start("Current section time")
         # intro and asking for workers from user
         banner("Initializing Step 1 now.")
@@ -238,7 +238,7 @@ class Slurm:
         Slurm.tell_user_rebooting()
 
     @staticmethod
-    def step2():
+    def step2_setup_shared_file_system(): # step2_setup_shared_file_system
         StopWatch.start("Current section time")
         banner("Initializing Step 2 now.")
         manager = Slurm.managerNamer()
@@ -355,7 +355,7 @@ class Slurm:
         Slurm.tell_user_rebooting()
 
     @staticmethod
-    def step3():
+    def step3_install_openmpi(): # step3_install_openmpi
         StopWatch.start("Current section time")
         banner("Initializing Step 3 now.")
 
@@ -410,7 +410,7 @@ class Slurm:
         Slurm.tell_user_rebooting()
 
     @staticmethod
-    def step4():
+    def step4_install_pmix_and_slurm(): # step4_install_pmix_and_slurm
         StopWatch.start("Current section time")
         banner("Initializing Step 4 now.")
         manager = Slurm.managerNamer()
@@ -563,7 +563,7 @@ class Slurm:
 
     # Here begins the script aside from the function definitions. In this part we run the steps by calling functions.
     @staticmethod
-    def install():
+    def install(interactive=False, workers=None, selected_os="raspberry", mount=None, step=None):
         banner("SLURM on Raspberry Pi Cluster Installation")
 
         # executing reading of device names.
@@ -572,18 +572,41 @@ class Slurm:
 
         step0done = Slurm.check_step(0, manager)
         if not step0done:
-            Slurm.step0()
+            Slurm.step0_identify_workers()
 
-        workers = Slurm.read_user_input_workers(manager)
+        if interactive:
+            workers = Slurm.read_user_input_workers(manager)
 
         hosts = Slurm.hostsVariable(manager, workers)
 
-        steps = [
-            (1, Slurm.step1),
-            (2, Slurm.step2),
-            (3, Slurm.step3),
-            (4, Slurm.step4)
-        ]
+        if step is None:
+            steps = [
+                (0, Slurm.step0_identify_workers()),
+                (1, Slurm.step1_os_update),
+                (2, Slurm.step2_setup_shared_file_system),
+                (3, Slurm.step3_install_openmpi),
+                (4, Slurm.step4_install_pmix_and_slurm)
+            ]
+        elif int(step) == 0:
+            steps = [
+                (0, Slurm.step0_identify_workers()),
+            ]
+        elif int(step) == 1:
+            steps = [
+                (1, Slurm.step1_os_update)
+            ]
+        elif int(step) == 2:
+            steps = [
+                (2, Slurm.step2_setup_shared_file_system)
+            ]
+        elif int(step) == 3:
+            steps = [
+                (3, Slurm.step3_install_openmpi)
+            ]
+        elif int(step) == 4:
+            steps = [
+                (4, Slurm.step4_install_pmix_and_slurm)
+            ]
 
         for i, step in steps:
             if not Slurm.check_step(i, hosts):
