@@ -77,7 +77,7 @@ class SlurmCommand(PluginCommand):
         if arguments.install and arguments.pi and not arguments["as"]:
             # slurm pi install [--interactive] [--os=OS] [--workers=WORKERS] [--mount=MOUNT] [--step=STEP]
             # arguments.workers = Parameter.expand(arguments.workers)
-            Slurm.install(workers=arguments.workers)
+            Slurm.install(workers=arguments.workers, mount=arguments.mount)
         elif arguments.install and arguments["as"] and arguments.worker:
             # slurm pi install as worker
             Console.error("not implemented")
