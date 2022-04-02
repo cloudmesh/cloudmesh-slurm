@@ -181,7 +181,7 @@ class Slurm:
     # output
     #  red000  -> red, red001, red002, red003
     @staticmethod
-    def step0_identify_workers(workers=None): # step0_identify_workers
+    def step0_identify_workers(workers=None, **kwargs): # step0_identify_workers
         StopWatch.start("Current section time")
         banner("Welcome to SLURM Installation. Initializing preliminary steps.")
         print("We assume that you run this script on the manager Pi and that your worker naming schema is \n"
@@ -209,7 +209,7 @@ class Slurm:
         StopWatch.benchmark()
 
     @staticmethod
-    def step1_os_update(): # step1_os_update
+    def step1_os_update(**kwargs): # step1_os_update
         StopWatch.start("Current section time")
         # intro and asking for workers from user
         banner("Initializing Step 1 now.")
@@ -240,7 +240,7 @@ class Slurm:
         Slurm.tell_user_rebooting(hosts)
 
     @staticmethod
-    def step2_setup_shared_file_system(mount=None): # step2_setup_shared_file_system
+    def step2_setup_shared_file_system(mount=None, **kwargs): # step2_setup_shared_file_system
         StopWatch.start("Current section time")
         banner("Initializing Step 2 now.")
         manager = Slurm.managerNamer()
@@ -355,7 +355,7 @@ class Slurm:
         Slurm.tell_user_rebooting(hosts)
 
     @staticmethod
-    def step3_install_openmpi(): # step3_install_openmpi
+    def step3_install_openmpi(**kwargs): # step3_install_openmpi
         StopWatch.start("Current section time")
         banner("Initializing Step 3 now.")
 
@@ -410,7 +410,7 @@ class Slurm:
         Slurm.tell_user_rebooting(hosts)
 
     @staticmethod
-    def step4_install_pmix_and_slurm(): # step4_install_pmix_and_slurm
+    def step4_install_pmix_and_slurm(**kwargs): # step4_install_pmix_and_slurm
         StopWatch.start("Current section time")
         banner("Initializing Step 4 now.")
         manager = Slurm.managerNamer()
@@ -577,7 +577,7 @@ class Slurm:
         if step is None:
             steps = [
                 (1, Slurm.step1_os_update),
-                (2, Slurm.step2_setup_shared_file_system(mount)),
+                (2, Slurm.step2_setup_shared_file_system),
                 (3, Slurm.step3_install_openmpi),
                 (4, Slurm.step4_install_pmix_and_slurm)
             ]
@@ -607,7 +607,7 @@ class Slurm:
             print(Slurm.check_step(i, hosts))
             if not Slurm.check_step(i, hosts):
                 banner(f"Step {i} is not done. Performing step {i} now.")
-                step()
+                step(workers=workers, mount=mount)
 
 
     '''
