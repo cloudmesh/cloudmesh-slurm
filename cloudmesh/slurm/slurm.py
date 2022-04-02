@@ -41,6 +41,15 @@ class Slurm:
 
     @staticmethod
     def hostexecute(script, manager):
+        """
+
+        :param script:
+        :type script:
+        :param manager:
+        :type manager:
+        :return:
+        :rtype:
+        """
         for command in script.splitlines():
             print(command)
             results = Host.ssh(hosts=manager, command=command)
@@ -48,6 +57,11 @@ class Slurm:
 
     @staticmethod
     def managerNamer():
+        """
+
+        :return:
+        :rtype:
+        """
         manager = subprocess.run(['hostname'],
                                  capture_output=True,
                                  text=True).stdout.strip()
@@ -77,6 +91,13 @@ class Slurm:
     # read the file user_input_workers
     @staticmethod
     def read_user_input_workers(manager):
+        """
+
+        :param manager:
+        :type manager:
+        :return:
+        :rtype:
+        """
         results = Host.ssh(hosts=manager, command='cat user_input_workers')
         print(Printer.write(results))
         for entry in results:
@@ -88,6 +109,13 @@ class Slurm:
     # tell user to ssh back to manager on reboot and reboot
     @staticmethod
     def tell_user_rebooting(hosts):
+        """
+
+        :param hosts:
+        :type hosts:
+        :return:
+        :rtype:
+        """
         banner('The cluster is rebooting. Wait a minute for the Pis to come '
                'back online and ssh into the manager. Then,'
                ' rerun the script by issuing "./install_slurm.py" to continue.')
@@ -97,6 +125,13 @@ class Slurm:
     # function that returns ip of pi
     @staticmethod
     def get_IP(manager):
+        """
+
+        :param manager:
+        :type manager:
+        :return:
+        :rtype:
+        """
         results = Host.ssh(hosts=manager, command="/sbin/ifconfig eth0 | grep 'inet' | cut -d: -f2")
         print(Printer.write(results))
         for entry in results:
@@ -118,6 +153,15 @@ class Slurm:
 
     @staticmethod
     def check_step(step_number, device):
+        """
+
+        :param step_number:
+        :type step_number:
+        :param device:
+        :type device:
+        :return:
+        :rtype:
+        """
         step_number_string = str(step_number)
         just_the_step = f"step{step_number_string}"
         changed_command = f"ls step{step_number_string}"
@@ -132,6 +176,15 @@ class Slurm:
 
     @staticmethod
     def try_installing_package(command_for_package, listOfWorkers):
+        """
+
+        :param command_for_package:
+        :type command_for_package:
+        :param listOfWorkers:
+        :type listOfWorkers:
+        :return:
+        :rtype:
+        """
         for worker in listOfWorkers:
             success = False
             while not success:
@@ -153,6 +206,15 @@ class Slurm:
 
     @staticmethod
     def try_downloading_from_github(command_for_download, listOfWorkers):
+        """
+
+        :param command_for_download:
+        :type command_for_download:
+        :param listOfWorkers:
+        :type listOfWorkers:
+        :return:
+        :rtype:
+        """
         for worker in listOfWorkers:
             success = False
             while not success:
@@ -182,6 +244,15 @@ class Slurm:
     #  red000  -> red, red001, red002, red003
     @staticmethod
     def step0_identify_workers(workers=None, **kwargs): # step0_identify_workers
+        """
+
+        :param workers:
+        :type workers:
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
+        """
         StopWatch.start("Current section time")
         banner("Welcome to SLURM Installation. Initializing preliminary steps.")
         print("We assume that you run this script on the manager Pi and that your worker naming schema is \n"
@@ -210,6 +281,13 @@ class Slurm:
 
     @staticmethod
     def step1_os_update(**kwargs): # step1_os_update
+        """
+
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
+        """
         StopWatch.start("Current section time")
         # intro and asking for workers from user
         banner("Initializing Step 1 now.")
@@ -241,6 +319,15 @@ class Slurm:
 
     @staticmethod
     def step2_setup_shared_file_system(mount=None, **kwargs): # step2_setup_shared_file_system
+        """
+
+        :param mount:
+        :type mount:
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
+        """
         StopWatch.start("Current section time")
         banner("Initializing Step 2 now.")
         manager = Slurm.managerNamer()
@@ -356,6 +443,13 @@ class Slurm:
 
     @staticmethod
     def step3_install_openmpi(**kwargs): # step3_install_openmpi
+        """
+
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
+        """
         StopWatch.start("Current section time")
         banner("Initializing Step 3 now.")
 
@@ -411,6 +505,13 @@ class Slurm:
 
     @staticmethod
     def step4_install_pmix_and_slurm(**kwargs): # step4_install_pmix_and_slurm
+        """
+
+        :param kwargs:
+        :type kwargs:
+        :return:
+        :rtype:
+        """
         StopWatch.start("Current section time")
         banner("Initializing Step 4 now.")
         manager = Slurm.managerNamer()
@@ -518,6 +619,7 @@ class Slurm:
             sudo systemctl start munge
             """)
         Slurm.hostexecute(script, manager)
+
         results = Host.ssh(hosts=workers, command='sudo cp /clusterfs/slurm.conf /usr/local/etc/slurm.conf')
         print(Printer.write(results))
         results = Host.ssh(hosts=hosts, command='sudo chown -R slurm:slurm /var/spool/')
@@ -559,6 +661,21 @@ class Slurm:
     # Here begins the script aside from the function definitions. In this part we run the steps by calling functions.
     @staticmethod
     def install(interactive=False, workers=None, selected_os="raspberry", mount=None, step=None):
+        """
+
+        :param interactive:
+        :type interactive:
+        :param workers:
+        :type workers:
+        :param selected_os:
+        :type selected_os:
+        :param mount:
+        :type mount:
+        :param step:
+        :type step:
+        :return:
+        :rtype:
+        """
         banner("SLURM on Raspberry Pi Cluster Installation")
 
         # executing reading of device names.

@@ -27,7 +27,7 @@ class SlurmCommand(PluginCommand):
                 we want a new command for that "install as worker"
 
           Arguments:
-              COMMAND  te surm command to be executed [default: salloc]
+              COMMAND  the slurm command to be executed [default: salloc]
 
           Options:
               -f                   specify the file
@@ -62,8 +62,6 @@ class SlurmCommand(PluginCommand):
 
                 slurm = Slurm()    slef instead of Slurm
                 slurm.install
-
-
 
         """
 
