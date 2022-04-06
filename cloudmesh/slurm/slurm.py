@@ -732,7 +732,10 @@ class Slurm:
 
         # executing reading of device names.
 
-        manager = Slurm.managerNamer()
+        if is_host_install:
+            manager = input_manager
+        else:
+            manager = Slurm.managerNamer()
 
         step0done = Slurm.check_step(0, manager)
         if not step0done:
