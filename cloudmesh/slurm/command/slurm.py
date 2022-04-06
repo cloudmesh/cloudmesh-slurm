@@ -76,23 +76,31 @@ class SlurmCommand(PluginCommand):
         if arguments["as"] and arguments.host and arguments.pi and arguments.install:
             "                slurm pi install as host [--os=OS] [--workers=WORKERS] [--mount=MOUNT]"
             from cloudmesh.slurm.workflow import Workflow
+            print(arguments.mount)
+            print(arguments["--mount"])
+            thelambdafunction = lambda: Slurm.install(workers=workers, is_host_install=True,
+                                                      input_manager=manager, hosts=arguments.hosts,
+                                                      mount=arguments.mount)
             steps = [
-                Slurm.step0_identify_workers,
-                Slurm.step1_os_update,
-                Slurm.step2_setup_shared_file_system,
-                Slurm.step3_install_openmpi,
-                Slurm.step4_install_pmix_and_slurm
+                thelambdafunction, thelambdafunction, thelambdafunction, thelambdafunction
             ]
             workers = Parameter.expand(arguments.hosts)[1:]
             manager = Parameter.expand(arguments.hosts)[0]
-            step0 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager)
-            step1 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager)
+            '''
+            step0 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager, hosts=arguments.hosts)
+            step1 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager, hosts=arguments.hosts)
             step2 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager,
-                                  mount=arguments.mount)
-            step3 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager)
-            step4 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager)
+                                  mount=arguments.mount, hosts=arguments.hosts)
+            step3 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager, hosts=arguments.hosts)
+            step4 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager, hosts=arguments.hosts)
+            '''
             w = Workflow(arguments.hosts,trials=10,delay=10)
             w.run(steps=steps)
+            '''
+            workers = Parameter.expand(arguments.hosts)[1:]
+            manager = Parameter.expand(arguments.hosts)[0]
+            Slurm.install(is_host_install=True, input_manager=manager, hosts=arguments.hosts)
+            '''
         elif arguments.install and arguments.pi and not arguments["as"]:
             # slurm pi install [--interactive] [--os=OS] [--workers=WORKERS] [--mount=MOUNT] [--step=STEP]
             # arguments.workers = Parameter.expand(arguments.workers)

@@ -168,8 +168,11 @@ class Slurm:
         results = Host.ssh(hosts=device, command=changed_command)
         print(Printer.write(results))
         step_done = True
+        error_code = "255"
         for entry in results:
-            if just_the_step in str(entry["stdout"]) and 'cannot access' in str(entry["stdout"]):
+            if error_code in str(entry["returncode"]):
+                time.sleep(15)
+            if just_the_step in str(entry["stderr"]) and 'cannot access' in str(entry["stderr"]):
                 step_done = False
                 entry["stderr"] = "False"
         return step_done
@@ -289,7 +292,7 @@ class Slurm:
 
     @staticmethod
     def step1_os_update(workers=None, is_host_install=False,
-                               input_manager=None, **kwargs): # step1_os_update
+                               input_manager=None, hosts=None, **kwargs): # step1_os_update
         """
 
         :param workers:
@@ -298,6 +301,8 @@ class Slurm:
         :type is_host_install:
         :param input_manager:
         :type input_manager:
+        :param hosts:
+        :type hosts:
         :param kwargs:
         :type kwargs:
         :return:
@@ -310,11 +315,14 @@ class Slurm:
             manager = input_manager
         else:
             manager = Slurm.managerNamer()
-        workers = Slurm.read_user_input_workers(manager)
+        if not workers:
+            workers = Slurm.read_user_input_workers(manager)
 
-        hosts = Slurm.hostsVariable(manager, workers)
+        if not hosts:
+            hosts = Slurm.hostsVariable(manager, workers)
 
         banner("Now updating packages. This may take a while.")
+
         results = Host.ssh(hosts=hosts, command="sudo apt-get update")
         print(Printer.write(results))
         # parallel_execute(hosts,"sudo apt install ntpdate -y")
@@ -336,7 +344,7 @@ class Slurm:
 
     @staticmethod
     def step2_setup_shared_file_system(workers=None, is_host_install=False,
-                               input_manager=None, mount=None, **kwargs): # step2_setup_shared_file_system
+                               input_manager=None, mount=None, hosts=None, **kwargs): # step2_setup_shared_file_system
         """
 
         :param workers:
@@ -347,6 +355,8 @@ class Slurm:
         :type input_manager:
         :param mount:
         :type mount:
+        :param hosts:
+        :type hosts:
         :param kwargs:
         :type kwargs:
         :return:
@@ -358,6 +368,7 @@ class Slurm:
             manager = input_manager
         else:
             manager = Slurm.managerNamer()
+            workers = Slurm.read_user_input_workers(manager)
         if not mount:
             if not yn_choice(
                     'Please insert USB storage medium into top USB 3.0 (blue) port on manager pi and press y when done'):
@@ -365,7 +376,6 @@ class Slurm:
                 return ""
 
         # executing reading of workers
-        workers = Slurm.read_user_input_workers(manager)
 
         hosts = Slurm.hostsVariable(manager, workers)
 
@@ -470,7 +480,7 @@ class Slurm:
 
     @staticmethod
     def step3_install_openmpi(workers=None, is_host_install=False,
-                               input_manager=None, **kwargs): # step3_install_openmpi
+                               input_manager=None, hosts=None, **kwargs): # step3_install_openmpi
         """
 
         :param workers:
@@ -479,6 +489,8 @@ class Slurm:
         :type is_host_install:
         :param input_manager:
         :type input_manager:
+        :param hosts:
+        :type hosts:
         :param kwargs:
         :type kwargs:
         :return:
@@ -491,11 +503,9 @@ class Slurm:
             manager = input_manager
         else:
             manager = Slurm.managerNamer()
+            workers = Slurm.read_user_input_workers(manager)
         # getting ip in case step 2 has not run
         trueIP = Slurm.get_IP(manager)
-
-        # executing reading of workers
-        workers = Slurm.read_user_input_workers(manager)
 
         hosts = Slurm.hostsVariable(manager, workers)
 
@@ -542,7 +552,7 @@ class Slurm:
 
     @staticmethod
     def step4_install_pmix_and_slurm(workers=None, is_host_install=False,
-                               input_manager=None, **kwargs): # step4_install_pmix_and_slurm
+                               input_manager=None, hosts=None, **kwargs): # step4_install_pmix_and_slurm
         """
 
         :param workers:
@@ -551,6 +561,8 @@ class Slurm:
         :type is_host_install:
         :param input_manager:
         :type input_manager:
+        :param hosts:
+        :type hosts:
         :param kwargs:
         :type kwargs:
         :return:
@@ -562,8 +574,7 @@ class Slurm:
             manager = input_manager
         else:
             manager = Slurm.managerNamer()
-        # executing reading of workers
-        workers = Slurm.read_user_input_workers(manager)
+            workers = Slurm.read_user_input_workers(manager)
 
         hosts = Slurm.hostsVariable(manager, workers)
 
@@ -708,7 +719,7 @@ class Slurm:
     # Here begins the script aside from the function definitions. In this part we run the steps by calling functions.
     @staticmethod
     def install(interactive=False, workers=None, selected_os="raspberry", mount=None, step=None, is_host_install=False,
-                input_manager=None):
+                input_manager=None, hosts=None):
         """
 
         :param interactive:
@@ -725,6 +736,8 @@ class Slurm:
         :type is_host_install:
         :param input_manager:
         :type input_manager:
+        :param hosts:
+        :type hosts:
         :return:
         :rtype:
         """
@@ -738,17 +751,21 @@ class Slurm:
             manager = Slurm.managerNamer()
 
         step0done = Slurm.check_step(0, manager)
+        print(f"this is step0done {step0done}")
         if not step0done:
-            Slurm.step0_identify_workers(workers)
+            if is_host_install:
+                workers = Parameter.expand(hosts)[1:]
+            else:
+                Slurm.step0_identify_workers(workers)
 
         if interactive:
             workers = Slurm.read_user_input_workers(manager)
 
-        hosts = Slurm.hostsVariable(manager, workers)
+        if not hosts:
+            hosts = Slurm.hostsVariable(manager, workers)
 
         if step is None:
             steps = [
-                (0, Slurm.step0_identify_workers),
                 (1, Slurm.step1_os_update),
                 (2, Slurm.step2_setup_shared_file_system),
                 (3, Slurm.step3_install_openmpi),
@@ -780,7 +797,8 @@ class Slurm:
             print(Slurm.check_step(i, hosts))
             if not Slurm.check_step(i, hosts):
                 banner(f"Step {i} is not done. Performing step {i} now.")
-                step(workers=workers, mount=mount, is_host_install=is_host_install, input_manager=input_manager)
+                step(workers=workers, mount=mount, is_host_install=is_host_install, input_manager=input_manager,
+                     hosts=hosts)
 
 
     '''
