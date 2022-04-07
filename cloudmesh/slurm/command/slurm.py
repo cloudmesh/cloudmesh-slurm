@@ -7,6 +7,7 @@ from cloudmesh.common.debug import VERBOSE
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.slurm.slurm import Slurm
 from cloudmesh.common.parameter import Parameter
+from cloudmesh.burn.util import os_is_windows
 
 class SlurmCommand(PluginCommand):
 
@@ -78,14 +79,21 @@ class SlurmCommand(PluginCommand):
             from cloudmesh.slurm.workflow import Workflow
             print(arguments.mount)
             print(arguments["--mount"])
+            if os_is_windows():
+                arguments.mount = arguments.mount.replace("\\", "/")
+
+            VERBOSE(arguments)
+
             thelambdafunction = lambda: Slurm.install(workers=workers, is_host_install=True,
                                                       input_manager=manager, hosts=arguments.hosts,
                                                       mount=arguments.mount)
             steps = [
                 thelambdafunction, thelambdafunction, thelambdafunction, thelambdafunction
             ]
-            workers = Parameter.expand(arguments.hosts)[1:]
-            manager = Parameter.expand(arguments.hosts)[0]
+            manager = arguments.hosts[:arguments.hosts.index(",")]
+            workers = (arguments.hosts.split(",",1)[1])
+            # workers = Parameter.expand(arguments.hosts)[1:]
+            # manager = Parameter.expand(arguments.hosts)[0]
             '''
             step0 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager, hosts=arguments.hosts)
             step1 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager, hosts=arguments.hosts)
@@ -93,8 +101,9 @@ class SlurmCommand(PluginCommand):
                                   mount=arguments.mount, hosts=arguments.hosts)
             step3 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager, hosts=arguments.hosts)
             step4 = Slurm.install(workers=workers, is_host_install=True, input_manager=manager, hosts=arguments.hosts)
+
             '''
-            w = Workflow(arguments.hosts,trials=10,delay=10)
+            w = Workflow(arguments.hosts,trials=1,delay=1)
             w.run(steps=steps)
             '''
             workers = Parameter.expand(arguments.hosts)[1:]

@@ -364,6 +364,8 @@ class Slurm:
         """
         StopWatch.start("Current section time")
         banner("Initializing Step 2 now.")
+        sys.stdin.reconfigure(encoding='utf-8')
+        sys.stdout.reconfigure(encoding='utf-8')
         if is_host_install:
             manager = input_manager
         else:
@@ -377,7 +379,8 @@ class Slurm:
 
         # executing reading of workers
 
-        hosts = Slurm.hostsVariable(manager, workers)
+        if not hosts:
+            hosts = Slurm.hostsVariable(manager, workers)
 
         if not mount:
             card = SDCard()
@@ -433,7 +436,7 @@ class Slurm:
             sudo chown nobody.nogroup -R /clusterfs
             sudo chmod -R 766 /clusterfs
             sudo apt install nfs-kernel-server -y
-            """)
+            """).strip()
         Slurm.hostexecute(script, manager)
         trueIP = Slurm.get_IP(manager)
         results = Host.ssh(hosts=manager, command=f'''sudo cat /etc/exports''')
@@ -507,7 +510,8 @@ class Slurm:
         # getting ip in case step 2 has not run
         trueIP = Slurm.get_IP(manager)
 
-        hosts = Slurm.hostsVariable(manager, workers)
+        if not hosts:
+            hosts = Slurm.hostsVariable(manager, workers)
 
         listOfWorkers = Parameter.expand(workers)
         print(listOfWorkers)
@@ -528,6 +532,8 @@ class Slurm:
         print(Printer.write(results))
         results = Host.ssh(hosts=hosts, command='ENV3/bin/pip install mpi4py')
         print(Printer.write(results))
+        sys.stdin.reconfigure(encoding='utf-8')
+        sys.stdout.reconfigure(encoding='utf-8')
         Slurm.try_installing_package("sudo apt install libevent-dev autoconf git libtool flex libmunge-dev munge -y",
                                listOfManager)
         Slurm.try_installing_package("sudo apt install libevent-dev autoconf git libtool flex libmunge-dev munge -y",
@@ -542,7 +548,7 @@ class Slurm:
                 sudo systemctl status nfs-server.service
                 sudo systemctl start nfs-server.service
                 sudo mount -a
-                """)
+                """).strip()
         Slurm.hostexecute(script, manager)
         results = Host.ssh(hosts=hosts, command="touch step3")
         print(Printer.write(results))
@@ -576,7 +582,8 @@ class Slurm:
             manager = Slurm.managerNamer()
             workers = Slurm.read_user_input_workers(manager)
 
-        hosts = Slurm.hostsVariable(manager, workers)
+        if not hosts:
+            hosts = Slurm.hostsVariable(manager, workers)
 
         listOfWorkers = Parameter.expand(workers)
         print(listOfWorkers)
@@ -628,7 +635,7 @@ class Slurm:
             sudo mv ~/slurm.conf /usr/local/etc/
             sudo sed -i 's/SlurmctldHost=workstation/SlurmctldHost={manager}({trueIP})/g' /usr/local/etc/slurm.conf
             sudo sed -i "$(( $(wc -l </usr/local/etc/slurm.conf)-2+1 )),$ d" /usr/local/etc/slurm.conf
-            """)
+            """).strip()
         Slurm.hostexecute(script, manager)
         results = Host.ssh(hosts=workers, command="cat /proc/sys/kernel/hostname")
         print(Printer.write(results))
@@ -675,7 +682,7 @@ class Slurm:
             sudo cp /etc/munge/munge.key /clusterfs
             sudo systemctl enable munge
             sudo systemctl start munge
-            """)
+            """).strip()
         Slurm.hostexecute(script, manager)
 
         results = Host.ssh(hosts=workers, command='sudo cp /clusterfs/slurm.conf /usr/local/etc/slurm.conf')
@@ -754,7 +761,7 @@ class Slurm:
         print(f"this is step0done {step0done}")
         if not step0done:
             if is_host_install:
-                workers = Parameter.expand(hosts)[1:]
+                workers = (hosts.split(",",1)[1])
             else:
                 Slurm.step0_identify_workers(workers)
 

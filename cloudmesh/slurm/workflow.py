@@ -12,7 +12,7 @@ from cloudmesh.common.util import yn_choice
 
 class Workflow:
 
-    def __init__(self,names,trials=10,delay=10):
+    def __init__(self,names,trials=1,delay=1):
         self.names = names
         self.trials = trials
         self.delay = delay
