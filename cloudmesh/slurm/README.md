@@ -90,6 +90,14 @@ and then using the command:
 cms slurm pi install --workers=red0[1-4] --mount=/dev/sda
 ```
 
+The user must `ssh` back into
+the manager after the cluster
+reboots and perform this step
+3 more times. The script
+will inform the user when
+this is no longer necessary
+and SLURM is fully installed.
+
 Notice this method does not
 need two forward slashes in
 `--mount` because it is done
