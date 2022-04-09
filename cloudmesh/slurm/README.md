@@ -60,6 +60,18 @@ points should not last more
 than 45 minutes and are likely
 simply building from source.
 
+Once the script ends, there is
+an expected error saying that
+the Pis cannot be pinged. You
+can check if SLURM is installed
+by issuing on the manager:
+
+`srun --nodes=3 hostname`
+
+and replacing the `--nodes`
+parameter with the number
+of workers.
+
 ## Method 2 - Install on Manager
 
 This method involves the user
@@ -83,3 +95,12 @@ need two forward slashes in
 `--mount` because it is done
 on Raspberry Pi OS and not
 Windows.
+
+You can check if SLURM is installed
+by issuing on the manager:
+
+`srun --nodes=3 hostname`
+
+and replacing the `--nodes`
+parameter with the number
+of workers.
