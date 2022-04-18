@@ -20,6 +20,17 @@ Initialize the cms command:
 (ENV3) you@yourlaptop $ cms help
 ```
 
+Then clone the cloudmesh-slurm repository:
+
+```bash
+(ENV3) you@yourlaptop $ cd ~/cm
+(ENV3) you@yourlaptop $ cloudmesh-installer get cmd5
+(ENV3) you@yourlaptop $ git clone https://github.com/cloudmesh/cloudmesh-slurm.git
+(ENV3) you@yourlaptop $ cd cloudmesh-slurm
+(ENV3) you@yourlaptop $ pip install -e .
+(ENV3) you@yourlaptop $ cms help
+```
+
 You may proceed if `slurm` shows in
 the documented commands.
 
