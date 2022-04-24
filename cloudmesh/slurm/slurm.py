@@ -677,8 +677,10 @@ class Slurm:
         script = textwrap.dedent(
             f"""
             echo "PartitionName=mycluster Nodes={workers} Default=YES MaxTime=INFINITE State=UP" | sudo tee /usr/local/etc/slurm.conf -a
-            sudo rm /clusterfs/slurm.conf
-            sudo cp /usr/local/etc/slurm.conf /clusterfs
+            sudo curl -L https://github.com/cloudmesh/cloudmesh-mpi/raw/main/doc/chapters/slurm/configs/cgroup.conf > ~/cgroup.conf
+            sudo cp ~/cgroup.conf /usr/local/etc/cgroup.conf
+            sudo rm ~/cgroup.conf
+            sudo cp /usr/local/etc/slurm.conf /usr/local/etc/cgroup.conf /clusterfs
             sudo cp /etc/munge/munge.key /clusterfs
             sudo systemctl enable munge
             sudo systemctl start munge
@@ -686,6 +688,10 @@ class Slurm:
         Slurm.hostexecute(script, manager)
 
         results = Host.ssh(hosts=workers, command='sudo cp /clusterfs/slurm.conf /usr/local/etc/slurm.conf')
+        print(Printer.write(results))
+        results = Host.ssh(hosts=workers, command='sudo cp /clusterfs/cgroup.conf /usr/local/etc/cgroup.conf')
+        print(Printer.write(results))
+        results = Host.ssh(hosts=hosts, command='sudo mkdir /var/spool/slurmd')
         print(Printer.write(results))
         results = Host.ssh(hosts=hosts, command='sudo chown -R slurm:slurm /var/spool/')
         print(Printer.write(results))
