@@ -76,10 +76,10 @@ class Workflow:
 
         for step in steps:
             step()
-            self.check_if_ping()
-            self.check_if_up()
-            success = self.check_if_ping() and self.check_if_up()
-            if not success:
-                Console.error("Not succeeded.")
-                sys.exit()
+            # self.check_if_ping()
+            # self.check_if_up()
+            # success = self.check_if_ping() and self.check_if_up()
+            # if not success:
+                # Console.error("Not succeeded.")
+                # sys.exit()
 
