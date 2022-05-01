@@ -95,9 +95,17 @@ via:
 pi@red $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
 ```
 
-and then using the command:
+and then, after activating venv 
+and rebooting, issue the
+commands:
 
 ```bash
+cd ~/cm
+cloudmesh-installer get cmd5
+git clone https://github.com/cloudmesh/cloudmesh-slurm.git
+cd cloudmesh-slurm
+pip install -e .
+cms help
 cms slurm pi install --workers=red0[1-4] --mount=/dev/sda
 ```
 
