@@ -172,9 +172,9 @@ class Slurm:
         for entry in results:
             if error_code in str(entry["returncode"]):
                 time.sleep(15)
-            if just_the_step in str(entry["stderr"]) and 'cannot access' in str(entry["stderr"]):
+            if just_the_step in str(entry["stdout"]) and 'cannot access' in str(entry["stdout"]):
                 step_done = False
-                entry["stderr"] = "False"
+                entry["success"] = "False"
         return step_done
 
     @staticmethod
