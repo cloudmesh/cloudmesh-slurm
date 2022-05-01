@@ -113,7 +113,8 @@ pi@red:~/cm/cloudmesh-slurm $ cms slurm pi install --workers=red0[1-4] --mount=/
 
 The user must `ssh` back into
 the manager after the cluster
-reboots and perform this step
+reboots and perform the last
+command (cms slurm pi install...)
 3 more times. The script
 will inform the user when
 this is no longer necessary
