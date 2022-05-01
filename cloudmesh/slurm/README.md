@@ -100,6 +100,7 @@ and rebooting, issue the
 commands:
 
 ```bash
+(ENV3) you@yourhostcomputer $ ssh red
 pi@red $ cd ~/cm
 pi@red $ cloudmesh-installer get cmd5
 pi@red $ git clone https://github.com/cloudmesh/cloudmesh-slurm.git
