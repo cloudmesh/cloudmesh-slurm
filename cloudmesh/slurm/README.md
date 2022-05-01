@@ -100,13 +100,13 @@ and rebooting, issue the
 commands:
 
 ```bash
-cd ~/cm
-cloudmesh-installer get cmd5
-git clone https://github.com/cloudmesh/cloudmesh-slurm.git
-cd cloudmesh-slurm
-pip install -e .
-cms help
-cms slurm pi install --workers=red0[1-4] --mount=/dev/sda
+pi@red $ cd ~/cm
+pi@red $ cloudmesh-installer get cmd5
+pi@red $ git clone https://github.com/cloudmesh/cloudmesh-slurm.git
+pi@red $ cd cloudmesh-slurm
+pi@red $ pip install -e .
+pi@red $ cms help
+pi@red $ cms slurm pi install --workers=red0[1-4] --mount=/dev/sda
 ```
 
 The user must `ssh` back into
