@@ -96,7 +96,8 @@ pi@red $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
 ```
 
 and then, after activating venv 
-and rebooting, issue the
+and rebooting (as instructed in
+console output), issue the
 commands:
 
 ```bash
