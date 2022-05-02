@@ -103,7 +103,6 @@ commands:
 ```bash
 (ENV3) you@yourhostcomputer $ ssh red
 pi@red:~ $ cd ~/cm
-pi@red:~/cm $ cloudmesh-installer get cmd5
 pi@red:~/cm $ git clone https://github.com/cloudmesh/cloudmesh-slurm.git
 pi@red:~/cm $ cd cloudmesh-slurm
 pi@red:~/cm/cloudmesh-slurm $ pip install -e .
