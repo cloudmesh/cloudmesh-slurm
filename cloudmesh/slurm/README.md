@@ -133,3 +133,20 @@ by issuing on the manager:
 and replacing the `--nodes`
 parameter with the number
 of workers.
+
+## Install Single-Node
+
+Single-node installation,
+which is a SLURM cluster
+with only one node, can
+be easily configured by
+using the host command
+with the manager and
+workers listed as the
+same hostname. In the
+following example, `red`
+is the single-node.
+
+```bash
+cms slurm pi install as host --hosts=red,red --mount=//dev//sda
+```
