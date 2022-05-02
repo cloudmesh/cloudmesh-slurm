@@ -28,6 +28,7 @@ import subprocess
 from cloudmesh.burn.usb import USB
 from cloudmesh.burn.sdcard import SDCard
 
+
 #
 # This can be used as cloudmesh.slurm.slurm.install()
 #
@@ -68,7 +69,6 @@ class Slurm:
         print(f"The hostname of the manager is taken to be {manager} \n")
         return manager
 
-
     # defining function which formulates hosts variable
     # the hosts variable has manager and workers
 
@@ -87,7 +87,6 @@ class Slurm:
         hosts = str(hosts)
         return (hosts)
 
-
     # read the file user_input_workers
     @staticmethod
     def read_user_input_workers(manager):
@@ -105,7 +104,6 @@ class Slurm:
             workers = str(entry["stdout"])
             return workers
 
-
     # tell user to ssh back to manager on reboot and reboot
     @staticmethod
     def tell_user_rebooting(hosts):
@@ -120,7 +118,6 @@ class Slurm:
                'back online and ssh into the manager. Then,'
                ' rerun the script by issuing "./install_slurm.py" to continue.')
         os.system("cms host reboot " + hosts)
-
 
     # function that returns ip of pi
     @staticmethod
@@ -148,7 +145,6 @@ class Slurm:
         print(trueIP)
         return trueIP
 
-
     # function that checks to see if a step has been run
 
     @staticmethod
@@ -172,7 +168,8 @@ class Slurm:
         for entry in results:
             if error_code in str(entry["returncode"]):
                 time.sleep(15)
-            if just_the_step in str(entry["stdout"]) and 'cannot access' in str(entry["stdout"]):
+            if (just_the_step in str(entry["stdout"]) and 'cannot access' in str(entry["stdout"])) or \
+                    (just_the_step in str(entry["stderr"]) and 'cannot access' in str(entry["stderr"])):
                 step_done = False
                 entry["success"] = "False"
         return step_done
@@ -237,7 +234,6 @@ class Slurm:
                         banner(f"Package download has succeeded for {worker}.")
                 time.sleep(5)
 
-
     # Beginning to define SLURM installation
 
     # input
@@ -247,7 +243,7 @@ class Slurm:
     #  red000  -> red, red001, red002, red003
     @staticmethod
     def step0_identify_workers(workers=None, is_host_install=False,
-                               input_manager=None, **kwargs): # step0_identify_workers
+                               input_manager=None, **kwargs):  # step0_identify_workers
         """
 
         :param workers:
@@ -292,7 +288,7 @@ class Slurm:
 
     @staticmethod
     def step1_os_update(workers=None, is_host_install=False,
-                               input_manager=None, hosts=None, **kwargs): # step1_os_update
+                        input_manager=None, hosts=None, **kwargs):  # step1_os_update
         """
 
         :param workers:
@@ -344,7 +340,8 @@ class Slurm:
 
     @staticmethod
     def step2_setup_shared_file_system(workers=None, is_host_install=False,
-                               input_manager=None, mount=None, hosts=None, **kwargs): # step2_setup_shared_file_system
+                                       input_manager=None, mount=None, hosts=None,
+                                       **kwargs):  # step2_setup_shared_file_system
         """
 
         :param workers:
@@ -483,7 +480,7 @@ class Slurm:
 
     @staticmethod
     def step3_install_openmpi(workers=None, is_host_install=False,
-                               input_manager=None, hosts=None, **kwargs): # step3_install_openmpi
+                              input_manager=None, hosts=None, **kwargs):  # step3_install_openmpi
         """
 
         :param workers:
@@ -518,12 +515,14 @@ class Slurm:
         print(hosts)
         listOfManager = [manager]
         trueIP = Slurm.get_IP(manager)
-        Slurm.try_installing_package("sudo apt-get install python3-venv python3-wheel python3-dev build-essential libopenmpi-dev "
-                               "-y",
-                               listOfWorkers)
-        Slurm.try_installing_package("sudo apt-get install python3-venv python3-wheel python3-dev build-essential libopenmpi-dev "
-                               "-y",
-                               listOfManager)
+        Slurm.try_installing_package(
+            "sudo apt-get install python3-venv python3-wheel python3-dev build-essential libopenmpi-dev "
+            "-y",
+            listOfWorkers)
+        Slurm.try_installing_package(
+            "sudo apt-get install python3-venv python3-wheel python3-dev build-essential libopenmpi-dev "
+            "-y",
+            listOfManager)
         results = Host.ssh(hosts=workers, command='python3 -m venv ~/ENV3')
         print(Printer.write(results))
         Slurm.try_installing_package("sudo apt-get install openmpi-bin -y", listOfWorkers)
@@ -535,14 +534,15 @@ class Slurm:
         sys.stdin.reconfigure(encoding='utf-8')
         sys.stdout.reconfigure(encoding='utf-8')
         Slurm.try_installing_package("sudo apt install libevent-dev autoconf git libtool flex libmunge-dev munge -y",
-                               listOfManager)
+                                     listOfManager)
         Slurm.try_installing_package("sudo apt install libevent-dev autoconf git libtool flex libmunge-dev munge -y",
-                               listOfWorkers)
+                                     listOfWorkers)
         results = Host.ssh(hosts=hosts, command='sudo mkdir -p /usr/lib/pmix/build/2.1 /usr/lib/pmix/install/2.1')
         print(Printer.write(results))
-        Slurm.try_downloading_from_github("cd /usr/lib/pmix && sudo git clone https://github.com/openpmix/openpmix.git source "
-                                    "&& cd source/ && git branch -a && sudo git checkout v2.1 && "
-                                    "sudo git pull", listOfManager)
+        Slurm.try_downloading_from_github(
+            "cd /usr/lib/pmix && sudo git clone https://github.com/openpmix/openpmix.git source "
+            "&& cd source/ && git branch -a && sudo git checkout v2.1 && "
+            "sudo git pull", listOfManager)
         script = textwrap.dedent(
             f"""
                 sudo systemctl status nfs-server.service
@@ -558,7 +558,7 @@ class Slurm:
 
     @staticmethod
     def step4_install_pmix_and_slurm(workers=None, is_host_install=False,
-                               input_manager=None, hosts=None, **kwargs): # step4_install_pmix_and_slurm
+                                     input_manager=None, hosts=None, **kwargs):  # step4_install_pmix_and_slurm
         """
 
         :param workers:
@@ -668,7 +668,7 @@ class Slurm:
             currentCoreCount = str(entry["stdout"])
             coreCounts.append(currentCoreCount)
         for x in range(len(hostnames)):
-            command = f'echo "NodeName={hostnames[x]} NodeAddr={trueIPs[x]} CPUs={coreCounts[x]} State=UNKNOWN" '\
+            command = f'echo "NodeName={hostnames[x]} NodeAddr={trueIPs[x]} CPUs={coreCounts[x]} State=UNKNOWN" ' \
                       '| sudo tee /usr/local/etc/slurm.conf -a'
             results = Host.ssh(hosts=manager,
                                command=command)
@@ -723,7 +723,6 @@ class Slurm:
                "nodes to come back online.\n")
         os.system("cms host reboot " + hosts)
 
-
     # a = readfile("test1")
     # writefile("test2",a)
 
@@ -767,7 +766,7 @@ class Slurm:
         print(f"this is step0done {step0done}")
         if not step0done:
             if is_host_install:
-                workers = (hosts.split(",",1)[1])
+                workers = (hosts.split(",", 1)[1])
             else:
                 Slurm.step0_identify_workers(workers)
 
@@ -812,7 +811,6 @@ class Slurm:
                 banner(f"Step {i} is not done. Performing step {i} now.")
                 step(workers=workers, mount=mount, is_host_install=is_host_install, input_manager=input_manager,
                      hosts=hosts)
-
 
     '''
     #def parallel_execute(hosts,command):
