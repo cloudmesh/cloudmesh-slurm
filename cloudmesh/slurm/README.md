@@ -71,9 +71,7 @@ points should not last more
 than 45 minutes and are likely
 simply building from source.
 
-Once the script ends, there is
-an expected error saying that
-the Pis cannot be pinged. You
+Once the script ends, you
 can check if SLURM is installed
 by issuing on the manager:
 
