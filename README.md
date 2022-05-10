@@ -67,7 +67,7 @@ and ensuring that the cluster is online,
 you have two methods of installing
 SLURM.
 
-## Method 1 - Install from Host
+## 2.0 Method 1 - Install from Host
 
 You can install SLURM on a cluster
 by executing commands from the
@@ -109,7 +109,7 @@ and replacing the `--nodes`
 parameter with the number
 of workers.
 
-## Method 2 - Install on Manager
+## 2.0 Method 2 - Install on Manager
 
 This method involves the user
 logging into the manager via
@@ -160,7 +160,7 @@ and replacing the `--nodes`
 parameter with the number
 of workers.
 
-## Install Single-Node
+## 3.0 Install Single-Node
 
 Single-node installation, which is a SLURM cluster
 with only one node, can be easily configured by
@@ -172,9 +172,9 @@ following example, `red` is the single-node.
 cms slurm pi install as host --hosts=red,red --mount=//dev//sda
 ```
 
-## Manual Pages
+## 4.0 Manual Pages
 
-### Manual Page for the `slurm` command
+### 4.1 Manual Page for the `slurm` command
 
 Note to execute the command on the command line you have to type in
 `cms slurm` and not just `slurm`.
