@@ -14,11 +14,11 @@
 - [Documentation for cms SLURM installation](#documentation-for-cms-slurm-installation)
   - [Abstract](#abstract)
   - [1.0 Installation](#10-installation)
-  - [Method 1 - Install from Host](#method-1---install-from-host)
-  - [Method 2 - Install on Manager](#method-2---install-on-manager)
-  - [Install Single-Node](#install-single-node)
-  - [Manual Pages](#manual-pages)
-    - [Manual Page for the `slurm` command](#manual-page-for-the-slurm-command)
+  - [2.0 Method 1 - Install from Host](#20-method-1---install-from-host)
+  - [3.0 Method 2 - Install on Manager](#30-method-2---install-on-manager)
+  - [4.0 Install Single-Node](#40-install-single-node)
+  - [5.0 Manual Pages](#50-manual-pages)
+    - [5.1 Manual Page for the `slurm` command](#51-manual-page-for-the-slurm-command)
 
 <!--TOC-->
 
@@ -109,7 +109,7 @@ and replacing the `--nodes`
 parameter with the number
 of workers.
 
-## 2.0 Method 2 - Install on Manager
+## 3.0 Method 2 - Install on Manager
 
 This method involves the user
 logging into the manager via
@@ -160,7 +160,7 @@ and replacing the `--nodes`
 parameter with the number
 of workers.
 
-## 3.0 Install Single-Node
+## 4.0 Install Single-Node
 
 Single-node installation, which is a SLURM cluster
 with only one node, can be easily configured by
@@ -172,9 +172,9 @@ following example, `red` is the single-node.
 cms slurm pi install as host --hosts=red,red --mount=//dev//sda
 ```
 
-## 4.0 Manual Pages
+## 5.0 Manual Pages
 
-### 4.1 Manual Page for the `slurm` command
+### 5.1 Manual Page for the `slurm` command
 
 Note to execute the command on the command line you have to type in
 `cms slurm` and not just `slurm`.
