@@ -1,21 +1,28 @@
 # Documentation for cms SLURM installation
 
-ABSTRACT
-
-TOC include TOC see cloudmesh pi-burn or cloudmesh-pi-cluster TOC inclusion in make file and README. If its not there its in a different pckg
-
-
 [![image](https://travis-ci.com/cloudmesh/cloudmesh-slurm.svg?branch=main)](https://travis-ci.com/github/cloudmesh/cloudmesh-slurm)
 [![image](https://img.shields.io/pypi/pyversions/cloudmesh-slurm.svg)](https://pypi.org/project/cloudmesh-slurm)
 [![image](https://img.shields.io/pypi/v/cloudmesh-slurm.svg)](https://pypi.org/project/cloudmesh-slurm/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
-<!--TOC-->
+## Abstract
+
 
 <!--TOC-->
 
-## Installation
+- [Documentation for cms SLURM installation](#documentation-for-cms-slurm-installation)
+  - [Abstract](#abstract)
+  - [1.0 Installation](#10-installation)
+  - [Method 1 - Install from Host](#method-1---install-from-host)
+  - [Method 2 - Install on Manager](#method-2---install-on-manager)
+  - [Install Single-Node](#install-single-node)
+  - [Manual Pages](#manual-pages)
+    - [Manual Page for the `slurm` command](#manual-page-for-the-slurm-command)
+
+<!--TOC-->
+
+## 1.0 Installation
 
 To use the cloudmesh SLURM command, one must have
 cloudmesh installed by using the following
@@ -151,16 +158,11 @@ of workers.
 
 ## Install Single-Node
 
-Single-node installation,
-which is a SLURM cluster
-with only one node, can
-be easily configured by
-using the host command
-with the manager and
-workers listed as the
-same hostname. In the
-following example, `red`
-is the single-node.
+Single-node installation, which is a SLURM cluster
+with only one node, can be easily configured by
+using the host command with the manager and
+workers listed as the same hostname. In the
+following example, `red` is the single-node.
 
 ```bash
 cms slurm pi install as host --hosts=red,red --mount=//dev//sda
@@ -174,5 +176,52 @@ Note to execute the command on the command line you have to type in
 `cms slurm` and not just `slurm`.
 
 <!--MANUAL-SLURM-->
+```
+      slurm pi install as worker
+      slurm pi example --n=NUMBER [COMMAND]
+      slurm pi install as host [--os=OS] [--hosts=HOSTS] [--mount=MOUNT]
 
+This command installs slurm on the current PI and also worker nodes if you specify them.
+
+TODO: how can the master be made also a worker, e.g. The slurm without worker nodes example
+      we want a new command for that "install as worker"
+
+Arguments:
+    COMMAND  the slurm command to be executed [default: salloc]
+
+Options:
+    -f                   specify the file
+    --interactive        asks questions
+    --os=OS              The operating system. SO far only RaspberryPiOS [default: RaspberryPiOS]
+
+Description:
+
+  Install:
+
+    pip install cloudmesh-slurm
+    cms help
+    cms slurm pi install --interactive
+
+  Example:
+    cms slurm example --n=4 [COMMAND]
+
+    MODE is one of salloc, srun, sbatch
+
+    will run the command
+
+      salloc -N 4 mpiexec python -m mpi4py.bench helloworld
+
+    API:
+
+      from cloudmesh.slurm.slurm import Slurm
+      from cloudmesh.slurm import Slurm
+
+      Slurm.install()
+
+      in case you use self
+
+      slurm = Slurm()    slef instead of Slurm
+      slurm.install
+
+```
 <!--MANUAL-SLURM-->
