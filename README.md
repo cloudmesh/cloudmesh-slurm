@@ -66,44 +66,56 @@ installing SLURM.
 ## 2.0 Method 1 - Install from Host
 
 You can install SLURM on a cluster by executing commands from the host
-computer. The host computer is the same computer that is previously
-referred to as `you@yourlaptop` and it is used to `ssh` into the Pis.
+computer. The host computer is the same computer that is previously 
+burned your SD Cards and is referred to as `you@yourlaptop`. This 
+machine can be used to `ssh` into each of the Pis.
 
-Use this command:
+
+To install it, use the command:
+
 ```bash
 cms slurm pi install as host --hosts=red,red0[1-4] --mount=//dev//sda
 ```
 
-The `--hosts` parameter should be edited to have the hostnames of your
-manager and workers, separated by comma.
+TODO: is the `//` only valid for windows? wht for other OSSes
 
-The `--mount` parameter should point to the mount place of your USB,
-inserted in the top-most blue USB3.0 port (on Pi 4's), and ***it will
-be formatted.***
+The `--hosts` parameter needs to include the hostnames of your cluster, including
+manager and workers, separated by comma using a parameterized naming scheme.
 
-The command may seem to hang at certain points, but these points
-should not last more than 45 minutes and are likely simply building
-from source.
+The `--mount` parameter points to the mount place of your USB,
+inserted in the top-most blue USB3.0 port (on Pi 4's) on your manager PI. 
 
-Once the script ends, you can check if SLURM is installed by issuing
+WARNING: This USB drive ***will be formatted*** and all data on it will be erased.
+
+The command will take a long time to finish. It may appear to not progress 
+at certain points, but please be patient. However they will last hopefully not longer 
+than 45 minutes. The reason this takes such a long tim is that at time of writing 
+of this tutorial, the prebuild sulrm 
+packages did not work and we compile them from source.
+
+Once the script completes, you can check if SLURM is installed by issuing
 on the manager:
 
 `srun --nodes=3 hostname`
 
 and replacing the `--nodes` parameter with the number of workers.
 
+TODO: YOu wil be seeing an output simiar to 
+
 ## 3.0 Method 2 - Install on Manager
 
-This method involves the user logging into the manager via `ssh`,
-installing cloudmesh via:
+This method involves the user logging into the manager via `ssh` and 
+first installing cloudmesh in the manager with:
 
 ```bash
 (ENV3) you@yourhostcomputer $ ssh red
 pi@red $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
 ```
 
-and then, after activating venv and rebooting (as instructed in
+After activating venv and rebooting (as instructed in
 console output), issue the commands:
+
+TODO: activation is not clear and needs to be spelled out.
 
 ```bash
 (ENV3) you@yourhostcomputer $ ssh red
@@ -120,8 +132,12 @@ and perform the last command (cms slurm pi install...)  3 more
 times. The script will inform the user when this is no longer
 necessary and SLURM is fully installed.
 
+TODO: I thought you automated the 3 more times calling?
+
 Notice this method does not need two forward slashes in `--mount`
 because it is done on Raspberry Pi OS and not Windows.
+
+#TODO: what do we do when we use macos, linux, or a PI4
 
 You can check if SLURM is installed by issuing on the manager:
 
@@ -130,6 +146,9 @@ You can check if SLURM is installed by issuing on the manager:
 and replacing the `--nodes` parameter with the number of workers.
 
 ## 4.0 Install Single-Node
+
+TODO: why do we ant that. explanation needed ...
+TODO: is this a cluster with manager and worker on the smae node or one manager and one 
 
 Single-node installation, which is a SLURM cluster with only one node,
 can be easily configured by using the host command with the manager
@@ -146,6 +165,8 @@ cms slurm pi install as host --hosts=red,red --mount=//dev//sda
 
 Note to execute the command on the command line you have to type in
 `cms slurm` and not just `slurm`.
+
+TODO: there is a todo in the manpage
 
 <!--MANUAL-SLURM-->
 ```
