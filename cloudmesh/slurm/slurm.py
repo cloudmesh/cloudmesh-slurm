@@ -165,13 +165,20 @@ class Slurm:
         print(Printer.write(results))
         step_done = True
         error_code = "255"
-        for entry in results:
-            if error_code in str(entry["returncode"]):
-                time.sleep(15)
-            if (just_the_step in str(entry["stdout"]) and 'cannot access' in str(entry["stdout"])) or \
-                    (just_the_step in str(entry["stderr"]) and 'cannot access' in str(entry["stderr"])):
-                step_done = False
-                entry["success"] = "False"
+        sleeping = True
+        while sleeping:
+            results = Host.ssh(hosts=device, command=changed_command)
+            print(Printer.write(results))
+            for entry in results:
+                if error_code in str(entry["returncode"]):
+                    time.sleep(15)
+                    break
+                else:
+                    sleeping = False
+        if (just_the_step in str(entry["stdout"]) and 'cannot access' in str(entry["stdout"])) or \
+                (just_the_step in str(entry["stderr"]) and 'cannot access' in str(entry["stderr"])):
+            step_done = False
+            entry["success"] = "False"
         return step_done
 
     @staticmethod

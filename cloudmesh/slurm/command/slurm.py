@@ -7,7 +7,7 @@ from cloudmesh.common.debug import VERBOSE
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.slurm.slurm import Slurm
 from cloudmesh.common.parameter import Parameter
-from cloudmesh.burn.util import os_is_windows
+from cloudmesh.common.systeminfo import os_is_windows
 
 class SlurmCommand(PluginCommand):
 
