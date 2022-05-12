@@ -15,6 +15,12 @@ source:
 	$(call banner, "Install cloudmesh-common")
 	pip install -e . -U
 
+
+readme:
+	cms markdown -p numbers ./README.md
+	cms man readme -p --toc
+	cms man readme -p --tag="MANUAL-SLURM" --command=slurm
+
 flake8:
 	cd ..; flake8 --max-line-length 124 --ignore=E722 cloudmesh-$(package)/cloudmesh
 	cd ..; flake8 --max-line-length 124 --ignore=E722 cloudmesh-$(package)/tests
