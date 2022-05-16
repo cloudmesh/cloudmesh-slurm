@@ -89,9 +89,9 @@ WARNING: This USB drive ***will be formatted*** and all data on it will be erase
 
 The command will take a long time to finish. It may appear to not progress 
 at certain points, but please be patient. However they will last hopefully not longer 
-than 45 minutes. The reason this takes such a long tim is that at time of writing 
-of this tutorial, the prebuild sulrm 
-packages did not work and we compile them from source.
+than 45 minutes. The reason this takes such a long time is that at time of writing 
+of this tutorial, the prebuilt SLURM
+packages did not work, so we compile it from source.
 
 Once the script completes, you can check if SLURM is installed by issuing
 on the manager:
@@ -100,7 +100,17 @@ on the manager:
 
 and replacing the `--nodes` parameter with the number of workers.
 
-TODO: YOu wil be seeing an output simiar to 
+You will see an output similar to
+
+```bash
+(ENV3) pi@red:~ $ srun --nodes=3 hostname
+red01
+red02
+red03
+(ENV3) pi@red:~ $
+```
+
+The nodes may be out of order. That is okay and normal.
 
 ## 3.0 Method 2 - Install on Manager
 
@@ -150,6 +160,18 @@ You can check if SLURM is installed by issuing on the manager:
 `srun --nodes=3 hostname`
 
 and replacing the `--nodes` parameter with the number of workers.
+
+You will see an output similar to
+
+```bash
+(ENV3) pi@red:~ $ srun --nodes=3 hostname
+red01
+red02
+red03
+(ENV3) pi@red:~ $
+```
+
+The nodes may be out of order. That is okay and normal.
 
 ## 4.0 Install Single-Node
 
