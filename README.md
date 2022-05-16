@@ -132,12 +132,10 @@ and perform the last command (cms slurm pi install...)  3 more
 times. The script will inform the user when this is no longer
 necessary and SLURM is fully installed.
 
-TODO: I thought you automated the 3 more times calling?
-
 Notice this method does not need two forward slashes in `--mount`
-because it is done on Raspberry Pi OS and not Windows.
-
-#TODO: what do we do when we use macos, linux, or a PI4
+because it is done on Raspberry Pi OS and not Windows. It can only
+be done on Raspberry Pi OS because the method is purposefully
+done on the manager Pi, to begin with.
 
 You can check if SLURM is installed by issuing on the manager:
 
@@ -147,8 +145,10 @@ and replacing the `--nodes` parameter with the number of workers.
 
 ## 4.0 Install Single-Node
 
-TODO: why do we ant that. explanation needed ...
-TODO: is this a cluster with manager and worker on the smae node or one manager and one 
+To make job management simple, we can install SLURM on one computer.
+This one computer has no workers and is a manager to its own self.
+The user can make and automate jobs for simplicity's sake, and the
+same computer will carry out those jobs.
 
 Single-node installation, which is a SLURM cluster with only one node,
 can be easily configured by using the host command with the manager
