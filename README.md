@@ -122,7 +122,7 @@ Please activate with
 Followed by a reboot
 ```
 
-After activating venv with the source command. and rebooting 
+After activating venv with the source command and rebooting 
 via `sudo reboot`, issue the commands:
 
 ```bash
