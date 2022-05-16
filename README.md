@@ -122,8 +122,8 @@ Please activate with
 Followed by a reboot
 ```
 
-After activating venv and rebooting (as instructed in
-console output), issue the commands:
+After activating venv with the source command. and rebooting 
+via `sudo reboot`, issue the commands:
 
 ```bash
 (ENV3) you@yourhostcomputer $ ssh red
