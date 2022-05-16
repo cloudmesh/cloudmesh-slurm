@@ -112,10 +112,18 @@ first installing cloudmesh in the manager with:
 pi@red $ curl -Ls http://cloudmesh.github.io/get/pi | sh -
 ```
 
+This output is printed upon successful installation.
+
+```bash
+Please activate with
+
+    source ~/ENV3/bin/activate
+
+Followed by a reboot
+```
+
 After activating venv and rebooting (as instructed in
 console output), issue the commands:
-
-TODO: activation is not clear and needs to be spelled out.
 
 ```bash
 (ENV3) you@yourhostcomputer $ ssh red
