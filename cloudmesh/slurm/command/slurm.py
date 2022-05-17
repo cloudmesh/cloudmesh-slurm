@@ -3,6 +3,8 @@ from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.common.debug import VERBOSE
 from cloudmesh.common.systeminfo import os_is_windows
+from cloudmesh.common.Host import Host
+from cloudmesh.common.Printer import Printer
 from cloudmesh.slurm.slurm import Slurm
 import os
 
@@ -18,7 +20,7 @@ class SlurmCommand(PluginCommand):
           Usage:
                 slurm pi install [--workers=WORKERS] [--mount=MOUNT]
                 slurm pi install as host [--os=OS] [--hosts=HOSTS] [--mount=MOUNT]
-                slurm pi example --n=NUMBER [COMMAND]
+                slurm pi example --n=NUMBER [--manager=MANAGER]
 
           This command installs slurm on the current PI and also worker nodes if you specify them.
 
@@ -64,7 +66,7 @@ class SlurmCommand(PluginCommand):
 
 
         map_parameters(arguments,
-                       "mount", "hosts", "workers")
+                       "mount", "hosts", "workers", "manager")
 
         VERBOSE(arguments)
 
@@ -112,6 +114,11 @@ class SlurmCommand(PluginCommand):
             # slurm pi example --n=NUMBER [COMMAND]
             # salloc -N 4 mpiexec python -m mpi4py.bench helloworld
             number_nodes = arguments["--n"]
-            os.system(f"salloc -N {number_nodes} mpiexec python -m mpi4py.bench helloworld")
+            command = f"salloc -N {number_nodes} mpiexec python -m mpi4py.bench helloworld"
+            if arguments.manager:
+                results = Host.ssh(hosts=arguments.manager, command=command)
+                print(Printer.write(results))
+            else:
+                os.system(command)
 
         return ""
