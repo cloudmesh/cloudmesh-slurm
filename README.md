@@ -114,6 +114,8 @@ The nodes may be out of order. That is okay and normal.
 
 ## 3.0 Method 2 - Install on Manager
 
+### 3.1 Install cloudmesh
+
 This method involves the user logging into the manager via `ssh` and 
 first installing cloudmesh in the manager with:
 
@@ -142,6 +144,15 @@ pi@red:~/cm $ git clone https://github.com/cloudmesh/cloudmesh-slurm.git
 pi@red:~/cm $ cd cloudmesh-slurm
 pi@red:~/cm/cloudmesh-slurm $ pip install -e .
 pi@red:~/cm/cloudmesh-slurm $ cms help
+```
+
+The slurm command should appear in the list.
+
+### 3.2 Install SLURM Directly on Pi
+
+Run this command to begin SLURM installation:
+
+```bash
 pi@red:~/cm/cloudmesh-slurm $ cms slurm pi install --workers=red0[1-3] --mount=/dev/sda
 ```
 
@@ -192,7 +203,10 @@ cms slurm pi install as host --hosts=red,red --mount=//dev//sda
 ## 5.0 MPI Example
 
 To run a test MPI example, `ssh` into the manager and then use
-the `example` command, as in the following (change the number
+the `example` command. This is only possible if `cms` is installed
+on the Pi; if you have not done this because you installed SLURM
+via the host method, then refer to section 3.1 to install cloudmesh on Pi.
+Then run the following (change the number
 after `--n` to the number of nodes):
 
 ```bash
