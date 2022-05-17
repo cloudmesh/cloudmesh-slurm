@@ -20,8 +20,8 @@
     - [3.2 Install SLURM Directly on Pi](#32-install-slurm-directly-on-pi)
   - [4.0 Install Single-Node](#40-install-single-node)
   - [5.0 MPI Example](#50-mpi-example)
-  - [6.0 Manual Pages](#50-manual-pages)
-    - [6.1 Manual Page for the `slurm` command](#51-manual-page-for-the-slurm-command)
+  - [6.0 Manual Pages](#60-manual-pages)
+    - [6.1 Manual Page for the `slurm` command](#61-manual-page-for-the-slurm-command)
 
 <!--TOC-->
 
