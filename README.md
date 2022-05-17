@@ -240,8 +240,6 @@ salloc: Relinquishing job allocation 17
 Note to execute the command on the command line you have to type in
 `cms slurm` and not just `slurm`.
 
-TODO: there is a todo in the manpage
-
 <!--MANUAL-SLURM-->
 ```
       slurm pi install [--workers=WORKERS] [--mount=MOUNT]
