@@ -16,9 +16,12 @@
   - [1.0 Installation](#10-installation)
   - [2.0 Method 1 - Install from Host](#20-method-1---install-from-host)
   - [3.0 Method 2 - Install on Manager](#30-method-2---install-on-manager)
+    - [3.1 Install cloudmesh](#31-install-cloudmesh)
+    - [3.2 Install SLURM Directly on Pi](#32-install-slurm-directly-on-pi)
   - [4.0 Install Single-Node](#40-install-single-node)
-  - [5.0 Manual Pages](#50-manual-pages)
-    - [5.1 Manual Page for the `slurm` command](#51-manual-page-for-the-slurm-command)
+  - [5.0 MPI Example](#50-mpi-example)
+  - [6.0 Manual Pages](#50-manual-pages)
+    - [6.1 Manual Page for the `slurm` command](#51-manual-page-for-the-slurm-command)
 
 <!--TOC-->
 
