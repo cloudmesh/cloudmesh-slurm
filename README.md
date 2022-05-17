@@ -80,7 +80,7 @@ To install it, use the command:
 cms slurm pi install as host --hosts=red,red0[1-3] --mount=//dev//sda
 ```
 
-TODO: is the `//` only valid for windows? wht for other OSSes
+The mount parameter is meant to have double slashes no matter the OS of the host.
 
 The `--hosts` parameter needs to include the hostnames of your cluster, including
 manager and workers, separated by comma using a parameterized naming scheme.
