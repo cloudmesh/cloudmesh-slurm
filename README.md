@@ -28,7 +28,7 @@
 ## 1.0 Installation
 
 The installation takes around an hour on a
-cluster of five Raspberry Pi 4 Model B computers.
+cluster of four Raspberry Pi 4 Model B computers.
 
 To use the cloudmesh SLURM command, one must have cloudmesh installed
 by using the following commands.
