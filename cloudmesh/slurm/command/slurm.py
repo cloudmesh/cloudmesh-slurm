@@ -117,6 +117,7 @@ class SlurmCommand(PluginCommand):
             command = f"salloc -N {number_nodes} mpiexec python -m mpi4py.bench helloworld"
             try:
                 r = Shell.run(command)
+                print(r)
             except subprocess.CalledProcessError as e:
                 if os_is_windows:
                     banner('You may have run the command on host by mistake. Please run '
