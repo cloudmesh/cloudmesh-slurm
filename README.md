@@ -74,7 +74,7 @@ machine can be used to `ssh` into each of the Pis.
 To install it, use the command:
 
 ```bash
-cms slurm pi install as host --hosts=red,red0[1-4] --mount=//dev//sda
+cms slurm pi install as host --hosts=red,red0[1-3] --mount=//dev//sda
 ```
 
 TODO: is the `//` only valid for windows? wht for other OSSes
@@ -142,7 +142,7 @@ pi@red:~/cm $ git clone https://github.com/cloudmesh/cloudmesh-slurm.git
 pi@red:~/cm $ cd cloudmesh-slurm
 pi@red:~/cm/cloudmesh-slurm $ pip install -e .
 pi@red:~/cm/cloudmesh-slurm $ cms help
-pi@red:~/cm/cloudmesh-slurm $ cms slurm pi install --workers=red0[1-4] --mount=/dev/sda
+pi@red:~/cm/cloudmesh-slurm $ cms slurm pi install --workers=red0[1-3] --mount=/dev/sda
 ```
 
 The user must `ssh` back into the manager after the cluster reboots
@@ -189,9 +189,36 @@ and workers listed as the same hostname. In the following example,
 cms slurm pi install as host --hosts=red,red --mount=//dev//sda
 ```
 
-## 5.0 Manual Pages
+## 5.0 MPI Example
 
-### 5.1 Manual Page for the `slurm` command
+To run a test MPI example, `ssh` into the manager and then use
+the `example` command, as in the following (change the number
+after `--n` to the number of nodes):
+
+```bash
+(ENV3) you@yourhostcomputer $ ssh red
+pi@red:~ $ cms slurm pi example --n=3
+```
+
+This `cms slurm` command runs `salloc -N 3 mpiexec python -m mpi4py.bench helloworld`
+but the number after `-N` is altered to whatever is input for the `--n` parameter.
+Do not run the `salloc` command. It is unnecessary when we have already implemented
+it within the aforementioned `cms slurm pi example` command. It is just listed here
+for reference.
+The output will be similar to:
+
+```bash
+pi@red:~ $ cms slurm pi example --n=3
+salloc: Granted job allocation 17
+Hello, World! I am process 0 of 3 on red01.
+Hello, World! I am process 1 of 3 on red02.
+Hello, World! I am process 2 of 3 on red03.
+salloc: Relinquishing job allocation 17
+```
+
+## 6.0 Manual Pages
+
+### 6.1 Manual Page for the `slurm` command
 
 Note to execute the command on the command line you have to type in
 `cms slurm` and not just `slurm`.
