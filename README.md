@@ -245,8 +245,8 @@ TODO: there is a todo in the manpage
 <!--MANUAL-SLURM-->
 ```
       slurm pi install [--workers=WORKERS] [--mount=MOUNT]
-    slurm pi install as host [--os=OS] [--hosts=HOSTS] [--mount=MOUNT]
-    slurm pi example --n=NUMBER
+      slurm pi install as host [--os=OS] [--hosts=HOSTS] [--mount=MOUNT]
+      slurm pi example --n=NUMBER
 
 This command installs slurm on the current PI and also worker nodes if you specify them.
 
