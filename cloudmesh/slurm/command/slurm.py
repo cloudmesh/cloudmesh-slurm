@@ -3,10 +3,10 @@ from cloudmesh.shell.command import PluginCommand
 from cloudmesh.shell.command import map_parameters
 from cloudmesh.common.debug import VERBOSE
 from cloudmesh.common.systeminfo import os_is_windows
-from cloudmesh.common.Host import Host
-from cloudmesh.common.Printer import Printer
+from cloudmesh.common.util import banner
+from cloudmesh.common.Shell import Shell
 from cloudmesh.slurm.slurm import Slurm
-import os
+import subprocess
 
 
 class SlurmCommand(PluginCommand):
@@ -20,7 +20,7 @@ class SlurmCommand(PluginCommand):
           Usage:
                 slurm pi install [--workers=WORKERS] [--mount=MOUNT]
                 slurm pi install as host [--os=OS] [--hosts=HOSTS] [--mount=MOUNT]
-                slurm pi example --n=NUMBER [--manager=MANAGER]
+                slurm pi example --n=NUMBER
 
           This command installs slurm on the current PI and also worker nodes if you specify them.
 
@@ -66,7 +66,7 @@ class SlurmCommand(PluginCommand):
 
 
         map_parameters(arguments,
-                       "mount", "hosts", "workers", "manager")
+                       "mount", "hosts", "workers")
 
         VERBOSE(arguments)
 
@@ -115,10 +115,10 @@ class SlurmCommand(PluginCommand):
             # salloc -N 4 mpiexec python -m mpi4py.bench helloworld
             number_nodes = arguments["--n"]
             command = f"salloc -N {number_nodes} mpiexec python -m mpi4py.bench helloworld"
-            if arguments.manager:
-                results = Host.ssh(hosts=arguments.manager, command=command)
-                print(Printer.write(results))
-            else:
-                os.system(command)
-
+            try:
+                r = Shell.run(command)
+            except subprocess.CalledProcessError as e:
+                if os_is_windows:
+                    banner('You may have run the command on host by mistake. Please run '
+                           'this command on the Pi.')
         return ""
