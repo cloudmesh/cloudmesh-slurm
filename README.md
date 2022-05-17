@@ -244,51 +244,50 @@ TODO: there is a todo in the manpage
 
 <!--MANUAL-SLURM-->
 ```
-      slurm pi install as worker
-      slurm pi example --n=NUMBER [COMMAND]
-      slurm pi install as host [--os=OS] [--hosts=HOSTS] [--mount=MOUNT]
+      slurm pi install [--workers=WORKERS] [--mount=MOUNT]
+    slurm pi install as host [--os=OS] [--hosts=HOSTS] [--mount=MOUNT]
+    slurm pi example --n=NUMBER
 
 This command installs slurm on the current PI and also worker nodes if you specify them.
 
-TODO: how can the master be made also a worker, e.g. The slurm without worker nodes example
-      we want a new command for that "install as worker"
+The manager can also be a worker by using the single-node method. For example, red can be
+a manager and worker, simultaneously, by issuing
+cms slurm pi install as host --hosts=red,red --mount=//dev//sda
 
 Arguments:
-    COMMAND  the slurm command to be executed [default: salloc]
+  COMMAND  the slurm command to be executed [default: salloc]
 
 Options:
-    -f                   specify the file
-    --interactive        asks questions
-    --os=OS              The operating system. SO far only RaspberryPiOS [default: RaspberryPiOS]
 
 Description:
 
-  Install:
+Install:
 
-    pip install cloudmesh-slurm
-    cms help
-    cms slurm pi install --interactive
+  pip install cloudmesh-slurm
+  cms help
+  cms slurm pi install
 
-  Example:
-    cms slurm example --n=4 [COMMAND]
+Example:
+  cms slurm pi example --n=4 [COMMAND]
 
-    MODE is one of salloc, srun, sbatch
+  MODE is one of salloc, srun, sbatch
 
-    will run the command
+  will run the command
 
-      salloc -N 4 mpiexec python -m mpi4py.bench helloworld
+    salloc -N 4 mpiexec python -m mpi4py.bench helloworld
 
-    API:
+  API:
 
-      from cloudmesh.slurm.slurm import Slurm
-      from cloudmesh.slurm import Slurm
+    from cloudmesh.slurm.slurm import Slurm
+    from cloudmesh.slurm import Slurm
 
-      Slurm.install()
+    Slurm.install()
 
-      in case you use self
+    in case you use self
 
-      slurm = Slurm()    slef instead of Slurm
-      slurm.install
+    slurm = Slurm()    slef instead of Slurm
+    slurm.install
+
 
 ```
 <!--MANUAL-SLURM-->
