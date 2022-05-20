@@ -5,6 +5,9 @@ from cloudmesh.common.debug import VERBOSE
 from cloudmesh.common.systeminfo import os_is_windows
 from cloudmesh.common.util import banner
 from cloudmesh.common.Shell import Shell
+from cloudmesh.common.Printer import Printer
+from cloudmesh.common.Host import Host
+from cloudmesh.common.console import Console
 from cloudmesh.slurm.slurm import Slurm
 import subprocess
 
@@ -21,6 +24,7 @@ class SlurmCommand(PluginCommand):
                 slurm pi install [--workers=WORKERS] [--mount=MOUNT]
                 slurm pi install as host [--os=OS] [--hosts=HOSTS] [--mount=MOUNT]
                 slurm pi example --n=NUMBER
+                slurm pi sbatch initialize [--hosts=HOSTS]
 
           This command installs slurm on the current PI and also worker nodes if you specify them.
 
@@ -122,4 +126,17 @@ class SlurmCommand(PluginCommand):
                 if os_is_windows:
                     banner('You may have run the command on host by mistake. Please run '
                            'this command on the Pi.')
+
+        elif arguments.sbatch and arguments.initialize:
+            if not arguments.hosts:
+                Console.error("Please supply the hostnames of the Pis to initialize sbatch on.")
+                return ""
+            manager = arguments.hosts[:arguments.hosts.index(",")]
+            workers = (arguments.hosts.split(",", 1)[1])
+            results = Host.ssh(hosts=arguments.hosts,
+                               command="mkdir ~/cm")
+            print(Printer.write(results))
+            results = Host.ssh(hosts=arguments.hosts,
+                               command="cd ~/cm")
+            print(Printer.write(results))
         return ""
