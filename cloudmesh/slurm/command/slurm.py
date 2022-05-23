@@ -137,6 +137,9 @@ class SlurmCommand(PluginCommand):
                                command="mkdir ~/cm")
             print(Printer.write(results))
             results = Host.ssh(hosts=arguments.hosts,
-                               command="cd ~/cm")
+                               command="cd ~/cm ; git clone https://github.com/cloudmesh/cloudmesh-mpi.git")
+            print(Printer.write(results))
+            results = Host.ssh(hosts=manager,
+                               command="cd ~/cm/cloudmesh-mpi/doc/chapters/slurm/configs ; sbatch helloworld.slurm")
             print(Printer.write(results))
         return ""
