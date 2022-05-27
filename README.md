@@ -77,7 +77,7 @@ machine can be used to `ssh` into each of the Pis.
 To install it, use the command:
 
 ```bash
-cms slurm pi install as host --hosts=red,red0[1-3] --mount=//dev//sda
+(ENV3) you@yourlaptop $  cms slurm pi install as host --hosts=red,red0[1-3] --mount=//dev//sda
 ```
 
 The mount parameter is meant to have double slashes no matter the OS of the host.
