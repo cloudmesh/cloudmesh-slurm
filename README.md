@@ -77,7 +77,7 @@ machine can be used to `ssh` into each of the Pis.
 To install it, use the command:
 
 ```bash
-(ENV3) you@yourlaptop $ cms slurm pi install as host --hosts=red,red0[1-3] --mount=//dev//sda
+(ENV3) you@yourlaptop $ cms slurm pi install as host --hosts=red,red0[1-4] --mount=//dev//sda
 ```
 
 The mount parameter is meant to have double slashes no matter the OS of the host.
@@ -99,17 +99,18 @@ packages did not work, so we compile it from source.
 Once the script completes, you can check if SLURM is installed by issuing
 on the manager:
 
-`(ENV3) pi@red:~ $ srun --nodes=3 hostname`
+`(ENV3) pi@red:~ $ srun --nodes=4 hostname`
 
 and replacing the `--nodes` parameter with the number of workers.
 
 You will see an output similar to
 
 ```bash
-(ENV3) pi@red:~ $ srun --nodes=3 hostname
+(ENV3) pi@red:~ $ srun --nodes=4 hostname
 red01
 red02
 red03
+red04
 (ENV3) pi@red:~ $
 ```
 
@@ -156,7 +157,7 @@ The slurm command should appear in the list.
 Run this command to begin SLURM installation:
 
 ```bash
-pi@red:~/cm/cloudmesh-slurm $ cms slurm pi install --workers=red0[1-3] --mount=/dev/sda
+pi@red:~/cm/cloudmesh-slurm $ cms slurm pi install --workers=red0[1-4] --mount=/dev/sda
 ```
 
 The user must `ssh` back into the manager after the cluster reboots
@@ -171,17 +172,18 @@ done on the manager Pi, to begin with.
 
 You can check if SLURM is installed by issuing on the manager:
 
-`srun --nodes=3 hostname`
+`srun --nodes=4 hostname`
 
 and replacing the `--nodes` parameter with the number of workers.
 
 You will see an output similar to
 
 ```bash
-(ENV3) pi@red:~ $ srun --nodes=3 hostname
+(ENV3) pi@red:~ $ srun --nodes=4 hostname
 red01
 red02
 red03
+red04
 (ENV3) pi@red:~ $
 ```
 
@@ -214,10 +216,10 @@ after `--n` to the number of nodes):
 
 ```bash
 (ENV3) you@yourhostcomputer $ ssh red
-pi@red:~ $ cms slurm pi example --n=3
+pi@red:~ $ cms slurm pi example --n=4
 ```
 
-This `cms slurm` command runs `salloc -N 3 mpiexec python -m mpi4py.bench helloworld`
+This `cms slurm` command runs `salloc -N 4 mpiexec python -m mpi4py.bench helloworld`
 but the number after `-N` is altered to whatever is input for the `--n` parameter.
 Do not run the `salloc` command. It is unnecessary when we have already implemented
 it within the aforementioned `cms slurm pi example` command. It is just listed here
@@ -225,11 +227,12 @@ for reference.
 The output will be similar to:
 
 ```bash
-pi@red:~ $ cms slurm pi example --n=3
+pi@red:~ $ cms slurm pi example --n=4
 salloc: Granted job allocation 17
-Hello, World! I am process 0 of 3 on red01.
-Hello, World! I am process 1 of 3 on red02.
-Hello, World! I am process 2 of 3 on red03.
+Hello, World! I am process 0 of 4 on red01.
+Hello, World! I am process 1 of 4 on red02.
+Hello, World! I am process 2 of 4 on red03.
+Hello, World! I am process 3 of 4 on red04.
 salloc: Relinquishing job allocation 17
 ```
 
