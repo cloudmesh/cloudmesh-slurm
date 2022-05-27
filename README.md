@@ -106,6 +106,7 @@ and replacing the `--nodes` parameter with the number of workers.
 You will see an output similar to
 
 ```bash
+(ENV3) you@yourlaptop $ ssh red
 (ENV3) pi@red:~ $ srun --nodes=4 hostname
 red01
 red02
