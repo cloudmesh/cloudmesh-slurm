@@ -77,7 +77,7 @@ machine can be used to `ssh` into each of the Pis.
 To install it, use the command:
 
 ```bash
-(ENV3) you@yourlaptop $  cms slurm pi install as host --hosts=red,red0[1-3] --mount=//dev//sda
+(ENV3) you@yourlaptop $ cms slurm pi install as host --hosts=red,red0[1-3] --mount=//dev//sda
 ```
 
 The mount parameter is meant to have double slashes no matter the OS of the host.
@@ -99,7 +99,7 @@ packages did not work, so we compile it from source.
 Once the script completes, you can check if SLURM is installed by issuing
 on the manager:
 
-`srun --nodes=3 hostname`
+`(ENV3) pi@red:~ $ srun --nodes=3 hostname`
 
 and replacing the `--nodes` parameter with the number of workers.
 
