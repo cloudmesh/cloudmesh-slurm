@@ -237,9 +237,20 @@ Hello, World! I am process 3 of 4 on red04.
 salloc: Relinquishing job allocation 17
 ```
 
-## 6.0 Manual Pages
+## 6.0 Interactive Job
 
-### 6.1 Manual Page for the `slurm` command
+You can start an interactive job by issuing the following:
+
+```bash
+(ENV3) pi@red:~ $ srun --nodes=1 --ntasks-per-node=1 --time=01:00:00 --pty bash -i
+pi@red01:~ $
+```
+
+This works in home dir, but not if you stand in other dir.
+
+## 7.0 Manual Pages
+
+### 7.1 Manual Page for the `slurm` command
 
 Note to execute the command on the command line you have to type in
 `cms slurm` and not just `slurm`.
