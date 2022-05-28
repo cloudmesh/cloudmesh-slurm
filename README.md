@@ -27,8 +27,8 @@
 
 ## 1.0 Installation
 
-The installation takes around an hour on a
-cluster of four Raspberry Pi 4 Model B computers.
+The installation takes around an hour on a cluster of four Raspberry
+Pi 4 Model B computers.
 
 To use the cloudmesh SLURM command, one must have cloudmesh installed
 by using the following commands.
@@ -69,8 +69,8 @@ installing SLURM.
 ## 2.0 Method 1 - Install from Host
 
 You can install SLURM on a cluster by executing commands from the host
-computer. The host computer is the same computer that is previously 
-burned your SD Cards and is referred to as `you@yourlaptop`. This 
+computer. The host computer is the same computer that is previously
+burned your SD Cards and is referred to as `you@yourlaptop`. This
 machine can be used to `ssh` into each of the Pis.
 
 
@@ -80,24 +80,27 @@ To install it, use the command:
 (ENV3) you@yourlaptop $ cms slurm pi install as host --hosts=red,red0[1-4] --mount=//dev//sda
 ```
 
-The mount parameter is meant to have double slashes no matter the OS of the host.
+The mount parameter is meant to have double slashes no matter the OS
+of the host.
 
-The `--hosts` parameter needs to include the hostnames of your cluster, including
-manager and workers, separated by comma using a parameterized naming scheme.
+The `--hosts` parameter needs to include the hostnames of your
+cluster, including manager and workers, separated by comma using a
+parameterized naming scheme.
 
 The `--mount` parameter points to the mount place of your USB,
-inserted in the top-most blue USB3.0 port (on Pi 4's) on your manager PI. 
+inserted in the top-most blue USB3.0 port (on Pi 4's) on your manager
+PI.
 
-WARNING: This USB drive ***will be formatted*** and all data on it will be erased.
+**WARNING:** This USB drive ***will be formatted*** and all data on it will be erased.
 
-The command will take a long time to finish. It may appear to not progress 
-at certain points, but please be patient. However they will last hopefully not longer 
-than 45 minutes. The reason this takes such a long time is that at time of writing 
-of this tutorial, the prebuilt SLURM
-packages did not work, so we compile it from source.
+The command will take a long time to finish. It may appear to not
+progress at certain points, but please be patient. However they will
+last hopefully not longer than 45 minutes. The reason this takes such
+a long time is that at time of writing of this tutorial, the prebuilt
+SLURM packages did not work, so we compile it from source.
 
-Once the script completes, you can check if SLURM is installed by issuing
-on the manager:
+Once the script completes, you can check if SLURM is installed by
+issuing on the manager:
 
 `(ENV3) pi@red:~ $ srun --nodes=4 hostname`
 
@@ -167,9 +170,9 @@ times. The script will inform the user when this is no longer
 necessary and SLURM is fully installed.
 
 Notice this method does not need two forward slashes in `--mount`
-because it is done on Raspberry Pi OS and not Windows. It can only
-be done on Raspberry Pi OS because the method is purposefully
-done on the manager Pi, to begin with.
+because it is done on Raspberry Pi OS and not Windows. It can only be
+done on Raspberry Pi OS because the method is purposefully done on the
+manager Pi, to begin with.
 
 You can check if SLURM is installed by issuing on the manager:
 
@@ -208,24 +211,24 @@ cms slurm pi install as host --hosts=red,red --mount=//dev//sda
 
 ## 5.0 MPI Example
 
-To run a test MPI example, `ssh` into the manager and then use
-the `example` command. This is only possible if `cms` is installed
-on the Pi; if you have not done this because you installed SLURM
-via the host method, then refer to section 3.1 to install cloudmesh on Pi.
-Then run the following (change the number
-after `--n` to the number of nodes):
+To run a test MPI example, `ssh` into the manager and then use the
+`example` command. This is only possible if `cms` is installed on the
+Pi; if you have not done this because you installed SLURM via the host
+method, then refer to section 3.1 to install cloudmesh on Pi.  Then
+run the following (change the number after `--n` to the number of
+nodes):
 
 ```bash
 (ENV3) you@yourhostcomputer $ ssh red
 pi@red:~ $ cms slurm pi example --n=4
 ```
 
-This `cms slurm` command runs `salloc -N 4 mpiexec python -m mpi4py.bench helloworld`
-but the number after `-N` is altered to whatever is input for the `--n` parameter.
-Do not run the `salloc` command. It is unnecessary when we have already implemented
-it within the aforementioned `cms slurm pi example` command. It is just listed here
-for reference.
-The output will be similar to:
+This `cms slurm` command runs `salloc -N 4 mpiexec python -m
+mpi4py.bench helloworld` but the number after `-N` is altered to
+whatever is input for the `--n` parameter.  Do not run the `salloc`
+command. It is unnecessary when we have already implemented it within
+the aforementioned `cms slurm pi example` command. It is just listed
+here for reference.  The output will be similar to:
 
 ```bash
 pi@red:~ $ cms slurm pi example --n=4
@@ -248,9 +251,57 @@ pi@red01:~ $
 
 This works in home dir, but not if you stand in other dir.
 
-## 7.0 Manual Pages
+## Using Slurm on local PI file space
 
-### 7.1 Manual Page for the `slurm` command
+Often it is time consuming during a slurm run to copy all the files
+and data to a remote host. This is valid also for accessing
+NFS. Furthermore, if you have a lareg number of nodes this could be
+problematic as the nodes compeet with each other. In such cases its is
+useful to be able to copy the data and potentially programs before you
+run sbatch. However, you must dod this for all nodes that you expect
+to be using for the batch job. As we are in full controll of the
+raspberry PI cluster, we simply copy it to all of them.
+
+Let us assume we hafe a clutsre burned for red,red0[1-2]. Let us
+create a simple program and distribute it to the workers.
+
+
+```bash
+red$ mkdir ~/tmp
+
+red$ echo "#! /usr/bin/env python" > tmp/hello.py
+red$ echo "import os" > tmp/hello.py
+red$ echo "os.system('hostname')" > tmp/hello.py
+
+red$ chmod a+x ~/tmp/hello.py
+red$ rsync -a ~/tmp red01:tmp
+red$ rsync -a ~/tmp red02:tmp
+```
+
+Now we can run it with
+
+```bash
+red$ srun -n 8 /home/pi/tmp/hello.py
+```
+
+As the PI4 has four threads and we copied the program to each pi, we
+will see an outut where each thread will execute the hostname command.
+We will see the following output. Please note that the order can be
+different.
+
+```
+red02
+red02
+red02
+red02
+red01
+red01
+red01
+red01
+```
+
+
+## 8.0 Manual Page for the `slurm` command
 
 Note to execute the command on the command line you have to type in
 `cms slurm` and not just `slurm`.
