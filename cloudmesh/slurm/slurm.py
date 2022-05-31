@@ -18,6 +18,7 @@ from cloudmesh.common.Printer import Printer
 from cloudmesh.common.console import Console
 from cloudmesh.common.util import yn_choice
 from cloudmesh.common.Shell import Shell
+from cloudmesh.pi.nfs.Nfs import Nfs
 from pprint import pprint
 import os
 import sys
@@ -385,8 +386,10 @@ class Slurm:
 
         if not hosts:
             hosts = Slurm.hostsVariable(manager, workers)
-
-        if not mount:
+        nfs = Nfs()
+        nfs.install(manager)
+        nfs.share("/nfs,/nfs",hosts)
+        """if not mount:
             card = SDCard()
             card.info()
             USB.check_for_readers()
@@ -401,12 +404,12 @@ class Slurm:
         else:
             device = mount
         script = textwrap.dedent(
-            f"""
+            f'''
             sudo mkfs.ext4 -F {device}
             sudo mkdir /nfs
             sudo chown nobody.nogroup -R /nfs
             sudo chmod 777 -R /nfs
-            """).strip()
+            ''').strip()
         Slurm.hostexecute(script, manager)
 
         # results = Host.ssh(hosts=manager, command=f"sudo mkfs.ext4 -F {device}")
@@ -434,13 +437,13 @@ class Slurm:
         print(type(result2))
         print(result2)
         script = textwrap.dedent(
-            f"""
+            f'''
             echo "UUID={result2} /nfs ext4 defaults 0 2" | sudo tee /etc/fstab -a
             sudo mount -a
             sudo chown nobody.nogroup -R /nfs
             sudo chmod -R 766 /nfs
             sudo apt install nfs-kernel-server -y
-            """).strip()
+            ''').strip()
         Slurm.hostexecute(script, manager)
         trueIP = Slurm.get_IP(manager)
         results = Host.ssh(hosts=manager, command=f'''sudo cat /etc/exports''')
@@ -478,7 +481,7 @@ class Slurm:
         if not Preexisting:
             results = Host.ssh(hosts=workers,
                                command=f'''echo "{trueIP}:/nfs    /nfs    nfs    defaults   0 0" | sudo tee /etc/fstab -a''')
-            print(Printer.write(results))
+            print(Printer.write(results))"""
         results = Host.ssh(hosts=hosts, command="touch step2")
         print(Printer.write(results))
         StopWatch.stop("Current section time")
