@@ -403,19 +403,19 @@ class Slurm:
         script = textwrap.dedent(
             f"""
             sudo mkfs.ext4 -F {device}
-            sudo mkdir /clusterfs
-            sudo chown nobody.nogroup -R /clusterfs
-            sudo chmod 777 -R /clusterfs
+            sudo mkdir /nfs
+            sudo chown nobody.nogroup -R /nfs
+            sudo chmod 777 -R /nfs
             """).strip()
         Slurm.hostexecute(script, manager)
 
         # results = Host.ssh(hosts=manager, command=f"sudo mkfs.ext4 -F {device}")
         # print(Printer.write(results))
-        # results = Host.ssh(hosts=manager, command="sudo mkdir /clusterfs")
+        # results = Host.ssh(hosts=manager, command="sudo mkdir /nfs")
         # print(Printer.write(results))
-        # results = Host.ssh(hosts=manager, command="sudo chown nobody.nogroup -R /clusterfs")
+        # results = Host.ssh(hosts=manager, command="sudo chown nobody.nogroup -R /nfs")
         # print(Printer.write(results))
-        # results = Host.ssh(hosts=manager, command="sudo chmod 777 -R /clusterfs")
+        # results = Host.ssh(hosts=manager, command="sudo chmod 777 -R /nfs")
         # print(Printer.write(results))
 
         results = Host.ssh(hosts=manager, command=f"sudo blkid {device}")
@@ -435,10 +435,10 @@ class Slurm:
         print(result2)
         script = textwrap.dedent(
             f"""
-            echo "UUID={result2} /clusterfs ext4 defaults 0 2" | sudo tee /etc/fstab -a
+            echo "UUID={result2} /nfs ext4 defaults 0 2" | sudo tee /etc/fstab -a
             sudo mount -a
-            sudo chown nobody.nogroup -R /clusterfs
-            sudo chmod -R 766 /clusterfs
+            sudo chown nobody.nogroup -R /nfs
+            sudo chmod -R 766 /nfs
             sudo apt install nfs-kernel-server -y
             """).strip()
         Slurm.hostexecute(script, manager)
@@ -447,10 +447,10 @@ class Slurm:
         print(Printer.write(results))
         for entry in results:
             Preexisting = False
-            if f'/clusterfs {trueIP}/24(rw,sync,no_root_squash,no_subtree_check)' in str(entry["stdout"]):
+            if f'/nfs {trueIP}/24(rw,sync,no_root_squash,no_subtree_check)' in str(entry["stdout"]):
                 Preexisting = True
         if not Preexisting:
-            command = f'echo "/clusterfs {trueIP}/24(rw,sync,no_root_squash,no_subtree_check)" | sudo tee /etc/exports -a'
+            command = f'echo "/nfs {trueIP}/24(rw,sync,no_root_squash,no_subtree_check)" | sudo tee /etc/exports -a'
             results = Host.ssh(hosts=manager,
                                command=command)
             print(Printer.write(results))
@@ -462,22 +462,22 @@ class Slurm:
 
         print(listOfWorkers)
         Slurm.try_installing_package("sudo apt install nfs-common -y", listOfWorkers)
-        results = Host.ssh(hosts=workers, command='sudo mkdir /clusterfs')
+        results = Host.ssh(hosts=workers, command='sudo mkdir /nfs')
         print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo chown nobody.nogroup /clusterfs')
+        results = Host.ssh(hosts=workers, command='sudo chown nobody.nogroup /nfs')
         print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo chmod -R 777 /clusterfs')
+        results = Host.ssh(hosts=workers, command='sudo chmod -R 777 /nfs')
         print(Printer.write(results))
 
         results = Host.ssh(hosts=manager, command=f'''sudo cat /etc/fstab''')
         print(Printer.write(results))
         for entry in results:
             Preexisting = False
-            if f'{trueIP}:/clusterfs    /clusterfs    nfs    defaults   0 0' in str(entry["stdout"]):
+            if f'{trueIP}:/nfs    /nfs    nfs    defaults   0 0' in str(entry["stdout"]):
                 Preexisting = True
         if not Preexisting:
             results = Host.ssh(hosts=workers,
-                               command=f'''echo "{trueIP}:/clusterfs    /clusterfs    nfs    defaults   0 0" | sudo tee /etc/fstab -a''')
+                               command=f'''echo "{trueIP}:/nfs    /nfs    nfs    defaults   0 0" | sudo tee /etc/fstab -a''')
             print(Printer.write(results))
         results = Host.ssh(hosts=hosts, command="touch step2")
         print(Printer.write(results))
@@ -602,9 +602,9 @@ class Slurm:
 
         results = Host.ssh(hosts=hosts, command='sudo useradd slurm')
         print(Printer.write(results))
-        results = Host.ssh(hosts=manager, command='sudo cp -R /usr/lib/pmix /clusterfs')
+        results = Host.ssh(hosts=manager, command='sudo cp -R /usr/lib/pmix /nfs')
         print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo cp -R /clusterfs/pmix /usr/lib')
+        results = Host.ssh(hosts=workers, command='sudo cp -R /nfs/pmix /usr/lib')
         print(Printer.write(results))
         results = Host.ssh(hosts=hosts, command='cd /usr/lib/pmix/source/ && sudo '
                                                 './autogen.sh && cd ../build/2.1/ && sudo ../../source/configure '
@@ -613,9 +613,9 @@ class Slurm:
         print(Printer.write(results))
 
         results = Host.ssh(hosts=manager, command='git clone https://github.com/SchedMD/slurm && sudo cp -R slurm '
-                                                  '/clusterfs')
+                                                  '/nfs')
         print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo cp -R /clusterfs/slurm ~')
+        results = Host.ssh(hosts=workers, command='sudo cp -R /nfs/slurm ~')
         print(Printer.write(results))
         results = Host.ssh(hosts=hosts, command='cd slurm && sudo ./configure --enable-debug --with-pmix '
                                                 '--with-munge --enable-deprecated')
@@ -683,20 +683,20 @@ class Slurm:
 
         script = textwrap.dedent(
             f"""
-            echo "PartitionName=mycluster Nodes={workers} Default=YES MaxTime=INFINITE State=UP" | sudo tee /usr/local/etc/slurm.conf -a
+            echo "PartitionName=default Nodes={workers} Default=YES MaxTime=INFINITE State=UP" | sudo tee /usr/local/etc/slurm.conf -a
             sudo curl -L https://github.com/cloudmesh/cloudmesh-mpi/raw/main/doc/chapters/slurm/configs/cgroup.conf > ~/cgroup.conf
             sudo cp ~/cgroup.conf /usr/local/etc/cgroup.conf
             sudo rm ~/cgroup.conf
-            sudo cp /usr/local/etc/slurm.conf /usr/local/etc/cgroup.conf /clusterfs
-            sudo cp /etc/munge/munge.key /clusterfs
+            sudo cp /usr/local/etc/slurm.conf /usr/local/etc/cgroup.conf /nfs
+            sudo cp /etc/munge/munge.key /nfs
             sudo systemctl enable munge
             sudo systemctl start munge
             """).strip()
         Slurm.hostexecute(script, manager)
 
-        results = Host.ssh(hosts=workers, command='sudo cp /clusterfs/slurm.conf /usr/local/etc/slurm.conf')
+        results = Host.ssh(hosts=workers, command='sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf')
         print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo cp /clusterfs/cgroup.conf /usr/local/etc/cgroup.conf')
+        results = Host.ssh(hosts=workers, command='sudo cp /nfs/cgroup.conf /usr/local/etc/cgroup.conf')
         print(Printer.write(results))
         results = Host.ssh(hosts=hosts, command='sudo mkdir /var/spool/slurmd')
         print(Printer.write(results))
@@ -706,7 +706,7 @@ class Slurm:
         print(Printer.write(results))
         results = Host.ssh(hosts=manager, command='cd ~/slurm/etc/ && sudo cp slurmctld.service /etc/systemd/system/')
         print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo cp /clusterfs/munge.key /etc/munge/munge.key')
+        results = Host.ssh(hosts=workers, command='sudo cp /nfs/munge.key /etc/munge/munge.key')
         print(Printer.write(results))
         results = Host.ssh(hosts=workers, command='sudo systemctl enable munge')
         print(Printer.write(results))
