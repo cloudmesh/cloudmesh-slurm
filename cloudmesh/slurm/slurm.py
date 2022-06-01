@@ -45,7 +45,7 @@ class Slurm:
 
 
     @staticmethod
-    def script_executor(script, hosts, manager, workers, dryrun=False):
+    def script_executor(script, hosts=None, manager=None, workers=None, dryrun=False):
         """
         The script executor takes a script and executes line by line.
         It executs it on the
@@ -58,13 +58,11 @@ class Slurm:
         """
 
         #
-        _script = script.splitlines()
-
-        print (f"AAAA >{script}<")
-
+        _script = textwrap.dedent(script).strip().splitlines()
+        print (f">{_script}<")
         for line in _script:
             if not line.startswith("#") or ":" not in line:
-                print (f">{line}<")
+                print (f"line >{line}<")
                 where, command = line.split(":",1)
                 where = where.strip()
                 command = command.strip()
@@ -764,11 +762,10 @@ class Slurm:
             """).strip()
         Slurm.hostexecute(script, manager)
 
-        """        
+
         # why not invent easier writing where we can mix hosts, workers, manager in multiline scripts?
         # maybe convert to class with instantiation so you can have self.manager, self.hosts, self.workers?
-        script = \
-            '''
+        script = '''
             workers: sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf
             workers: sudo cp /nfs/cgroup.conf /usr/local/etc/cgroup.conf
             hosts:   sudo mkdir /var/spool/slurmd
@@ -788,11 +785,10 @@ class Slurm:
         # or 
         # hosts: mkdir -p ~/.cloudmesh/slurm
         # hosts: touch ~/.cloudmesh/slurm/step4
-        
-                
-            Slurm.script_executor(script, hosts, manager, workers)
-        """
 
+        Slurm.script_executor(script, hosts=hosts, manger=manager, workers=workers)
+
+        """
         results = Host.ssh(hosts=workers, command='sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf')
         print(Printer.write(results))
         results = Host.ssh(hosts=workers, command='sudo cp /nfs/cgroup.conf /usr/local/etc/cgroup.conf')
@@ -823,6 +819,8 @@ class Slurm:
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
+        """
+
         print("Rebooting cluster now.")
         banner("After successful reboot, ssh back into manager and test SLURM by issuing $ srun --nodes=3 hostname "
                "(change 3 to number of nodes if necessary). If it does not work right away, wait a minute for the "

@@ -15,8 +15,7 @@ class TestConfig:
 
     def test_script_executor(self):
         HEADING()
-        script = \
-            '''
+        script = '''
             workers: sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf
             hosts:   sudo mkdir /var/spool/slurmd
             manager: cd ~/slurm/etc/ && sudo cp slurmctld.service /etc/systemd/system
