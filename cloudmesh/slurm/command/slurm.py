@@ -21,8 +21,8 @@ class SlurmCommand(PluginCommand):
         ::
 
           Usage:
-                slurm pi install [--workers=WORKERS] [--mount=MOUNT]
-                slurm pi install as host [--os=OS] [--hosts=HOSTS] [--mount=MOUNT]
+                slurm pi install [--workers=WORKERS] [--partition=PARTITION]
+                slurm pi install as host [--os=OS] [--hosts=HOSTS] [--partition=PARTITION]
                 slurm pi example --n=NUMBER
                 slurm pi sbatch initialize [--hosts=HOSTS]
 
@@ -30,7 +30,7 @@ class SlurmCommand(PluginCommand):
 
           The manager can also be a worker by using the single-node method. For example, red can be
           a manager and worker, simultaneously, by issuing
-          cms slurm pi install as host --hosts=red,red --mount=//dev//sda
+          cms slurm pi install as host --hosts=red,red
 
           Arguments:
               COMMAND  the slurm command to be executed [default: salloc]
@@ -70,23 +70,19 @@ class SlurmCommand(PluginCommand):
 
 
         map_parameters(arguments,
-                       "mount", "hosts", "workers")
+                       "hosts", "workers", "partition")
 
         VERBOSE(arguments)
 
         if arguments["as"] and arguments.host and arguments.pi and arguments.install:
-            "                slurm pi install as host [--workers=WORKERS] [--mount=MOUNT]"
+            "                slurm pi install as host [--workers=WORKERS] [--partition=PARTITION]"
             from cloudmesh.slurm.workflow import Workflow
-            print(arguments.mount)
-            print(arguments["--mount"])
-            #if os_is_windows():
-            #    arguments.mount = arguments.mount.replace("\\", "/")
 
             VERBOSE(arguments)
 
             thelambdafunction = lambda: Slurm.install(workers=workers, is_host_install=True,
                                                       input_manager=manager, hosts=arguments.hosts,
-                                                      mount=arguments.mount)
+                                                      partition=arguments.partition)
             steps = [
                 thelambdafunction, thelambdafunction, thelambdafunction, thelambdafunction
             ]
@@ -111,9 +107,9 @@ class SlurmCommand(PluginCommand):
             Slurm.install(is_host_install=True, input_manager=manager, hosts=arguments.hosts)
             '''
         elif arguments.install and arguments.pi and not arguments["as"]:
-            # slurm pi install [--interactive] [--os=OS] [--workers=WORKERS] [--mount=MOUNT] [--step=STEP]
+            # slurm pi install [--interactive] [--os=OS] [--workers=WORKERS]
             # arguments.workers = Parameter.expand(arguments.workers)
-            Slurm.install(workers=arguments.workers, mount=arguments.mount)
+            Slurm.install(workers=arguments.workers, partition=arguments.partition)
         elif arguments.pi and arguments.example:
             # slurm pi example --n=NUMBER [COMMAND]
             # salloc -N 4 mpiexec python -m mpi4py.bench helloworld

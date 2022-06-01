@@ -13,22 +13,13 @@ from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.util import banner
 from cloudmesh.common.parameter import Parameter
 from cloudmesh.common.Host import Host
-from cloudmesh.common.util import readfile, writefile
 from cloudmesh.common.Printer import Printer
-from cloudmesh.common.console import Console
-from cloudmesh.common.util import yn_choice
 from cloudmesh.common.Shell import Shell
 from cloudmesh.pi.nfs.Nfs import Nfs
-from pprint import pprint
 import os
 import sys
-import re
 import textwrap
 import time
-import subprocess
-from cloudmesh.burn.usb import USB
-from cloudmesh.burn.sdcard import SDCard
-
 
 #
 # This can be used as cloudmesh.slurm.slurm.install()
@@ -49,7 +40,7 @@ class Slurm:
     def script_executor(script, hosts=None, manager=None, workers=None, dryrun=False):
         """
         The script executor takes a script and executes line by line.
-        It executs it on the
+        It executes it on the
 
         script = '''
         workers: sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf
@@ -80,42 +71,35 @@ class Slurm:
 
     # TODO: invert parameters rename hmanager to host: host=None, script=None
     @staticmethod
-    def hostexecute(script, manager):
+    def hostexecute(host=None, script=None):
         """
 
+        :param host:
+        :type host:
         :param script:
         :type script:
-        :param manager:
-        :type manager:
         :return:
         :rtype:
         """
         for command in script.splitlines():
             print(command)
-            results = Host.ssh(hosts=manager, command=command)
+            results = Host.ssh(hosts=host, command=command)
             print(Printer.write(results))
 
-    # TODDO: get_manager_name(): ? should print be done after get_manager_name
     @staticmethod
-    def managerNamer():
+    def get_manager_name():
         """
 
         :return:
         :rtype:
         """
-        # why not Shell.run ?
-        manager = subprocess.run(['hostname'],
-                                 capture_output=True,
-                                 text=True).stdout.strip()
-        print(f"The hostname of the manager is taken to be {manager} \n")
-        return manager
+        return Shell.run("hostname").strip()
 
     # defining function which formulates hosts variable
     # the hosts variable has manager and workers
 
-    # TODO: get_hosts(manager, workers) ? why is return hosts in ( )?
     @staticmethod
-    def hostsVariable(manager, workers):
+    def get_hosts(manager, workers):
         """
 
         :param manager:
@@ -125,9 +109,7 @@ class Slurm:
         :return:
         :rtype:
         """
-        hosts = f'''{manager},{workers}'''
-        hosts = str(hosts)
-        return (hosts)
+        return f'{manager},{workers}'
 
     # read the file user_input_workers
     @staticmethod
@@ -156,9 +138,7 @@ class Slurm:
         :return:
         :rtype:
         """
-        banner('The cluster is rebooting. Wait a minute for the Pis to come '
-               'back online and ssh into the manager. Then,'
-               ' rerun the script by issuing "./install_slurm.py" to continue.')
+        banner('The cluster is rebooting.')
         os.system("cms host reboot " + hosts)
 
     # function that returns ip of pi
@@ -176,15 +156,10 @@ class Slurm:
         for entry in results:
             print(str(entry["stdout"]))
             ipaddress = str(entry["stdout"])
-        print(ipaddress)
         ipaddress2 = ipaddress.replace('inet ', '')
-        print(ipaddress2)
         ipaddress3 = ipaddress2.split(' ')
-        print(ipaddress3)
         ipaddress4 = [x for x in ipaddress3 if x]
-        print(ipaddress4)
         trueIP = ipaddress4[0]
-        print(trueIP)
         return trueIP
 
     # function that checks to see if a step has been run
@@ -201,7 +176,7 @@ class Slurm:
         :rtype:
         """
         step = f"step{step_number}"
-        changed_command = f"ls {Slurm.step_location}{step}"
+        changed_command = f"ls {Slurm.step_location}/{step}"
         results = Host.ssh(hosts=device, command=changed_command)
         print(Printer.write(results))
         step_done = True
@@ -293,6 +268,7 @@ class Slurm:
     def step0_identify_workers(workers=None,
                                is_host_install=False,
                                input_manager=None,
+                               partition=None,
                                **kwargs):
         """
         step0_identify_workers
@@ -303,6 +279,8 @@ class Slurm:
         :type is_host_install:
         :param input_manager:
         :type input_manager:
+        :param partition:
+        :type partition:
         :param kwargs:
         :type kwargs:
         :return:
@@ -315,24 +293,24 @@ class Slurm:
         if is_host_install:
             manager = input_manager
         else:
-            manager = Slurm.managerNamer()
+            manager = Slurm.get_manager_name()
         if not workers:
             user_input_workers = input(str('''Please enter the naming schema of your workers. For example, if you have 3
                 workers then enter "red0[1-3]". Another example for 7 workers is "worker[1-7]" (do not include
                 quotation marks): \n'''))
         else:
             user_input_workers = workers
-        results = Host.ssh(hosts=manager, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.step_location}user_input_workers")
+        results = Host.ssh(hosts=manager, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.step_location}/user_input_workers")
         print(Printer.write(results))
-        results = Host.ssh(hosts=manager, command=f"echo '{user_input_workers}' >> {Slurm.step_location}user_input_workers")
+        results = Host.ssh(hosts=manager, command=f"echo '{user_input_workers}' >> {Slurm.step_location}/user_input_workers")
         print(Printer.write(results))
 
         # intro and asking for workers from user
         workers = Slurm.read_user_input_workers(manager)
 
-        hosts = Slurm.hostsVariable(manager, workers)
+        hosts = Slurm.get_hosts(manager, workers)
 
-        results = Host.ssh(hosts=hosts, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.location}step0")
+        results = Host.ssh(hosts=hosts, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.step_location}/step0")
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
@@ -341,7 +319,9 @@ class Slurm:
     def step1_os_update(workers=None,
                         is_host_install=False,
                         input_manager=None,
-                        hosts=None, **kwargs):
+                        hosts=None,
+                        partition=None,
+                        **kwargs):
         """
         step1_os_update
 
@@ -353,6 +333,8 @@ class Slurm:
         :type input_manager:
         :param hosts:
         :type hosts:
+        :param partition:
+        :type partition:
         :param kwargs:
         :type kwargs:
         :return:
@@ -364,12 +346,12 @@ class Slurm:
         if is_host_install:
             manager = input_manager
         else:
-            manager = Slurm.managerNamer()
+            manager = Slurm.get_manager_name()
         if not workers:
             workers = Slurm.read_user_input_workers(manager)
 
         if not hosts:
-            hosts = Slurm.hostsVariable(manager, workers)
+            hosts = Slurm.get_hosts(manager, workers)
 
         banner("Now updating packages. This may take a while.")
 
@@ -386,7 +368,7 @@ class Slurm:
         listOfManager = [manager]
         Slurm.try_installing_package("sudo apt install ntpdate -y", listOfManager)
         Slurm.try_installing_package("sudo apt install ntpdate -y", listOfWorkers)
-        results = Host.ssh(hosts=hosts, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.step_location}step1")
+        results = Host.ssh(hosts=hosts, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.step_location}/step1")
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
@@ -396,8 +378,8 @@ class Slurm:
     def step2_setup_shared_file_system(workers=None,
                                        is_host_install=False,
                                        input_manager=None,
-                                       mount=None,
                                        hosts=None,
+                                       partition=None,
                                        **kwargs):
         """
         step2_setup_shared_file_system
@@ -408,10 +390,10 @@ class Slurm:
         :type is_host_install:
         :param input_manager:
         :type input_manager:
-        :param mount:
-        :type mount:
         :param hosts:
         :type hosts:
+        :param partition:
+        :type partition:
         :param kwargs:
         :type kwargs:
         :return:
@@ -424,22 +406,17 @@ class Slurm:
         if is_host_install:
             manager = input_manager
         else:
-            manager = Slurm.managerNamer()
+            manager = Slurm.get_manager_name()
             workers = Slurm.read_user_input_workers(manager)
-        """if not mount:
-            if not yn_choice(
-                    'Please insert USB storage medium into top USB 3.0 (blue) port on manager pi and press y when done'):
-                Console.error("You pressed no but the script is continuing as normal...")
-                return """""
 
         # executing reading of workers
 
         if not hosts:
-            hosts = Slurm.hostsVariable(manager, workers)
+            hosts = Slurm.get_hosts(manager, workers)
         nfs = Nfs()
         nfs.install(manager)
         nfs.share("/nfs,/nfs", hosts)
-        results = Host.ssh(hosts=hosts, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.step_location}step2")
+        results = Host.ssh(hosts=hosts, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.step_location}/step2")
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
@@ -449,7 +426,8 @@ class Slurm:
     def step3_install_openmpi(workers=None,
                               is_host_install=False,
                               input_manager=None,
-                              hosts=None, **kwargs):
+                              hosts=None,
+                              partition=None, **kwargs):
         """
         step3_install_openmpi
 
@@ -461,6 +439,8 @@ class Slurm:
         :type input_manager:
         :param hosts:
         :type hosts:
+        :param partition:
+        :type partition:
         :param kwargs:
         :type kwargs:
         :return:
@@ -472,17 +452,15 @@ class Slurm:
         if is_host_install:
             manager = input_manager
         else:
-            manager = Slurm.managerNamer()
+            manager = Slurm.get_manager_name()
             workers = Slurm.read_user_input_workers(manager)
         # getting ip in case step 2 has not run
         trueIP = Slurm.get_IP(manager)
 
         if not hosts:
-            hosts = Slurm.hostsVariable(manager, workers)
+            hosts = Slurm.get_hosts(manager, workers)
 
         listOfWorkers = Parameter.expand(workers)
-        print(listOfWorkers)
-        print(hosts)
         listOfManager = [manager]
         trueIP = Slurm.get_IP(manager)
         Slurm.try_installing_package(
@@ -517,7 +495,7 @@ class Slurm:
             manager: sudo systemctl status nfs-server.service
             manager: sudo systemctl start nfs-server.service
             manager: sudo mount -a
-            hosts:   mkdir -p {Slurm.step_location} && touch {Slurm.step_location}step3
+            hosts:   mkdir -p {Slurm.step_location} && touch {Slurm.step_location}/step3
             """
         Slurm.script_executor(script, manager=manager, hosts=hosts)
         StopWatch.stop("Current section time")
@@ -528,7 +506,8 @@ class Slurm:
     def step4_install_pmix_and_slurm(workers=None,
                                      is_host_install=False,
                                      input_manager=None,
-                                     hosts=None, **kwargs):
+                                     hosts=None,
+                                     partition=None, **kwargs):
         """
         step4_install_pmix_and_slurm
 
@@ -540,6 +519,8 @@ class Slurm:
         :type input_manager:
         :param hosts:
         :type hosts:
+        :param partition:
+        :type partition:
         :param kwargs:
         :type kwargs:
         :return:
@@ -550,11 +531,11 @@ class Slurm:
         if is_host_install:
             manager = input_manager
         else:
-            manager = Slurm.managerNamer()
+            manager = Slurm.get_manager_name()
             workers = Slurm.read_user_input_workers(manager)
 
         if not hosts:
-            hosts = Slurm.hostsVariable(manager, workers)
+            hosts = Slurm.get_hosts(manager, workers)
 
         listOfWorkers = Parameter.expand(workers)
         print(listOfWorkers)
@@ -619,13 +600,9 @@ class Slurm:
         for x in ipaddresses:
             x2 = x.replace('inet ', '')
             x3 = x2.split(' ')
-            print(x3)
             x4 = [y for y in x3 if y]
-            print(x4)
             trueIP = x4[0]
-            print(trueIP)
             trueIPs.append(trueIP)
-        print(trueIPs)
         coreCounts = []
         results = Host.ssh(hosts=workers,
                            command="cat /sys/devices/system/cpu/cpu[0-9]*/topology/core_cpus_list | sort -u | wc -l")
@@ -639,8 +616,8 @@ class Slurm:
                                command=command)
             print(Printer.write(results))
 
-        script = f"""
-            manager: echo "PartitionName=mycluster Nodes={workers} Default=YES MaxTime=INFINITE State=UP" | sudo tee /usr/local/etc/slurm.conf -a
+        script = f'''
+            manager: echo "PartitionName={partition} Nodes={workers} Default=YES MaxTime=INFINITE State=UP" | sudo tee /usr/local/etc/slurm.conf -a
             manager: sudo curl -L https://github.com/cloudmesh/cloudmesh-mpi/raw/main/doc/chapters/slurm/configs/cgroup.conf > ~/cgroup.conf
             manager: sudo cp ~/cgroup.conf /usr/local/etc/cgroup.conf
             manager: sudo rm ~/cgroup.conf
@@ -648,13 +625,6 @@ class Slurm:
             manager: sudo cp /etc/munge/munge.key /nfs
             manager: sudo systemctl enable munge
             manager: sudo systemctl start munge
-            """
-        Slurm.script_executor(script, manager=manager)
-
-
-        # why not invent easier writing where we can mix hosts, workers, manager in multiline scripts?
-        # maybe convert to class with instantiation so you can have self.manager, self.hosts, self.workers?
-        script = f'''
             workers: sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf
             workers: sudo cp /nfs/cgroup.conf /usr/local/etc/cgroup.conf
             hosts:   sudo mkdir /var/spool/slurmd
@@ -668,7 +638,7 @@ class Slurm:
             workers: sudo systemctl start slurmd
             manager: sudo systemctl enable slurmctld
             manager: sudo systemctl start slurmctld
-            hosts:   mkdir -p {Slurm.step_location} && touch {Slurm.step_location}step4
+            hosts:   mkdir -p {Slurm.step_location} && touch {Slurm.step_location}/step4
             '''
         Slurm.script_executor(script, hosts=hosts, manager=manager, workers=workers)
 
@@ -678,9 +648,6 @@ class Slurm:
                "nodes to come back online.\n")
         os.system("cms host reboot " + hosts)
 
-    # a = readfile("test1")
-    # writefile("test2",a)
-
     # StopWatch.start("Total Runtime")
 
     # Here begins the script aside from the function definitions. In this part we run the steps by calling functions.
@@ -688,10 +655,11 @@ class Slurm:
     def install(interactive=False,
                 workers=None,
                 selected_os="raspberry",
-                mount=None, step=None,
+                step=None,
                 is_host_install=False,
                 input_manager=None,
-                hosts=None):
+                hosts=None,
+                partition="pis"):
         """
 
         :param interactive:
@@ -700,8 +668,6 @@ class Slurm:
         :type workers:
         :param selected_os:
         :type selected_os:
-        :param mount:
-        :type mount:
         :param step:
         :type step:
         :param is_host_install:
@@ -720,10 +686,9 @@ class Slurm:
         if is_host_install:
             manager = input_manager
         else:
-            manager = Slurm.managerNamer()
+            manager = Slurm.get_manager_name()
 
         step0done = Slurm.check_step(0, manager)
-        print(f"this is step0done {step0done}")
         if not step0done:
             if is_host_install:
                 workers = (hosts.split(",", 1)[1])
@@ -734,7 +699,7 @@ class Slurm:
             workers = Slurm.read_user_input_workers(manager)
 
         if not hosts:
-            hosts = Slurm.hostsVariable(manager, workers)
+            hosts = Slurm.get_hosts(manager, workers)
 
         if step is None:
             steps = [
@@ -769,20 +734,10 @@ class Slurm:
             print(Slurm.check_step(i, hosts))
             if not Slurm.check_step(i, hosts):
                 banner(f"Step {i} is not done. Performing step {i} now.")
-                step(workers=workers, mount=mount, is_host_install=is_host_install, input_manager=input_manager,
-                     hosts=hosts)
+                step(workers=workers, is_host_install=is_host_install, input_manager=input_manager,
+                     hosts=hosts, partition=partition)
 
     '''
-    #def parallel_execute(hosts,command):
-    #  os.system("cms host ssh "+hosts+" \"'"+command+""'\"")
-    #
-    #parallel_execute(hosts,"sudo apt-get update")
-    #for host in ehosts:
-    #  os.system("cms host ssh "+hosts+" 'touch step1'")
-    # print (names)
-    results4 = Host.ssh(hosts=hosts,
-                       command="cat step1")
-    print(results4)
     StopWatch.stop("Total Runtime")
     StopWatch.benchmark()
     '''
