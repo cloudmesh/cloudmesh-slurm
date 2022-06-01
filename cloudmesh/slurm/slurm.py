@@ -40,6 +40,48 @@ from cloudmesh.burn.sdcard import SDCard
 
 
 class Slurm:
+    """
+    """
+
+
+    @staticmethod
+    def script_executor(script, hosts, manager, workers, dryrun=False):
+        """
+        The script executor takes a script and executes line by line.
+        It executs it on the
+
+        script = '''
+        workers: sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf
+        hosts:   sudo mkdir /var/spool/slurmd
+        manager: cd ~/slurm/etc/ && sudo cp slurmctld.service /etc/systemd/system
+        '''
+        """
+
+        #
+        _script = script.splitlines()
+
+        print (f"AAAA >{script}<")
+
+        for line in _script:
+            if not line.startswith("#") or ":" not in line:
+                print (f">{line}<")
+                where, command = line.split(":",1)
+                where = where.strip()
+                command = command.strip()
+                if not dryrun:
+                    if where == "workers":
+                      where = workers
+                    elif where == "hosts":
+                      where == hosts
+                    elif where == "manager":
+                      where == manager
+                    else:
+                      where = None
+                    results = Host.ssh(hosts=where, command=command)
+                    print(Printer.write(results))
+                else:
+                    print(f"[{where}]", f"<{command}>")
+
 
     # TODO: invert parameters rename hmanager to host: host=None, script=None
     @staticmethod
@@ -747,24 +789,8 @@ class Slurm:
         # hosts: mkdir -p ~/.cloudmesh/slurm
         # hosts: touch ~/.cloudmesh/slurm/step4
         
-        def script_executor(script):
-            _script = textwrap.dedent(script)
-            for line in _script.splitlines():
-                where, command = line.split(":",1)
-                where = where.strip()
-                command = command.strip()
-                if where == "workers":
-                    where = workers
-                elif where == "hosts":
-                    where == hosts
-                elif where == "manager":
-                    where == manager
-                else:
-                    where = None
-                results = Host.ssh(hosts=where, command=command)
-                print(Printer.write(results))
                 
-            script_executor(script)
+            Slurm.script_executor(script, hosts, manager, workers)
         """
 
         results = Host.ssh(hosts=workers, command='sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf')
