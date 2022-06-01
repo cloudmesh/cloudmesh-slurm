@@ -173,7 +173,6 @@ red01
 red02
 red03
 red04
-(ENV3) pi@red:~ $
 ```
 
 The nodes may be out of order. That is okay and normal.
