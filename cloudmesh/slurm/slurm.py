@@ -440,99 +440,6 @@ class Slurm:
         nfs = Nfs()
         nfs.install(manager)
         nfs.share("/nfs,/nfs", hosts)
-        """if not mount:
-            card = SDCard()
-            card.info()
-            USB.check_for_readers()
-            print('Please enter the device path e.g. "/dev/sda" or enter no input to default to /dev/sda '
-                  '(remember, do not add quotation marks)')
-            print('The device of the path you enter WILL BE FORMATTED and used as cluster file '
-                  'storage for SLURM config:')
-            device = input()
-            if device == '':
-                device = '/dev/sda'
-            print(device)
-        else:
-            device = mount
-        script = textwrap.dedent(
-            f'''
-            sudo mkfs.ext4 -F {device}
-            sudo mkdir /nfs
-            sudo chown nobody.nogroup -R /nfs
-            sudo chmod 777 -R /nfs
-            ''').strip()
-        Slurm.hostexecute(script, manager)
-
-        # results = Host.ssh(hosts=manager, command=f"sudo mkfs.ext4 -F {device}")
-        # print(Printer.write(results))
-        # results = Host.ssh(hosts=manager, command="sudo mkdir /nfs")
-        # print(Printer.write(results))
-        # results = Host.ssh(hosts=manager, command="sudo chown nobody.nogroup -R /nfs")
-        # print(Printer.write(results))
-        # results = Host.ssh(hosts=manager, command="sudo chmod 777 -R /nfs")
-        # print(Printer.write(results))
-
-        results = Host.ssh(hosts=manager, command=f"sudo blkid {device}")
-        print(Printer.write(results))
-        for entry in results:
-            print(str(entry["stdout"]))
-            blkid = str(entry["stdout"])
-        print(blkid)
-        blkid2 = re.findall(r'\S+', blkid)
-        print(blkid2)
-        result = [i for i in blkid2 if i.startswith('UUID=')]
-        print(result)
-        listToStr = ' '.join(map(str, result))
-        result2 = re.findall(r'"([^"]*)"', listToStr)
-        result2 = " ".join(str(x) for x in result2)
-        print(type(result2))
-        print(result2)
-        script = textwrap.dedent(
-            f'''
-            echo "UUID={result2} /nfs ext4 defaults 0 2" | sudo tee /etc/fstab -a
-            sudo mount -a
-            sudo chown nobody.nogroup -R /nfs
-            sudo chmod -R 766 /nfs
-            sudo apt install nfs-kernel-server -y
-            ''').strip()
-        Slurm.hostexecute(script, manager)
-        trueIP = Slurm.get_IP(manager)
-        results = Host.ssh(hosts=manager, command=f'''sudo cat /etc/exports''')
-        print(Printer.write(results))
-        for entry in results:
-            Preexisting = False
-            if f'/nfs {trueIP}/24(rw,sync,no_root_squash,no_subtree_check)' in str(entry["stdout"]):
-                Preexisting = True
-        if not Preexisting:
-            command = f'echo "/nfs {trueIP}/24(rw,sync,no_root_squash,no_subtree_check)" | sudo tee /etc/exports -a'
-            results = Host.ssh(hosts=manager,
-                               command=command)
-            print(Printer.write(results))
-
-        Slurm.hostexecute("sudo exportfs -a", manager)
-
-        # make array with list of workers
-        listOfWorkers = Parameter.expand(workers)
-
-        print(listOfWorkers)
-        Slurm.try_installing_package("sudo apt install nfs-common -y", listOfWorkers)
-        results = Host.ssh(hosts=workers, command='sudo mkdir /nfs')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo chown nobody.nogroup /nfs')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo chmod -R 777 /nfs')
-        print(Printer.write(results))
-
-        results = Host.ssh(hosts=manager, command=f'''sudo cat /etc/fstab''')
-        print(Printer.write(results))
-        for entry in results:
-            Preexisting = False
-            if f'{trueIP}:/nfs    /nfs    nfs    defaults   0 0' in str(entry["stdout"]):
-                Preexisting = True
-        if not Preexisting:
-            results = Host.ssh(hosts=workers,
-                               command=f'''echo "{trueIP}:/nfs    /nfs    nfs    defaults   0 0" | sudo tee /etc/fstab -a''')
-            print(Printer.write(results))"""
         results = Host.ssh(hosts=hosts, command="touch step2")
         print(Printer.write(results))
         StopWatch.stop("Current section time")
@@ -607,15 +514,13 @@ class Slurm:
             "cd /usr/lib/pmix && sudo git clone https://github.com/openpmix/openpmix.git source "
             "&& cd source/ && git branch -a && sudo git checkout v2.1 && "
             "sudo git pull", listOfManager)
-        script = textwrap.dedent(
-            f"""
-                sudo systemctl status nfs-server.service
-                sudo systemctl start nfs-server.service
-                sudo mount -a
-                """).strip()
-        Slurm.hostexecute(script, manager)
-        results = Host.ssh(hosts=hosts, command="touch step3")
-        print(Printer.write(results))
+        script = """
+            manager: sudo systemctl status nfs-server.service
+            manager: sudo systemctl start nfs-server.service
+            manager: sudo mount -a
+            hosts:   touch step3
+            """
+        Slurm.script_executor(script,manager=manager, hosts=hosts)
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
         Slurm.tell_user_rebooting(hosts)
@@ -662,29 +567,20 @@ class Slurm:
 
         # see comment on script executor
         #
+        script = """
+            hosts:   sudo useradd slurm
+            manager: sudo cp -R /usr/lib/pmix /nfs
+            workers: sudo cp -R /nfs/pmix /usr/lib
+            hosts:   cd /usr/lib/pmix/source/ && sudo ./autogen.sh && cd ../build/2.1/ && sudo ../../source/configure --prefix=/usr/local && sudo make -j install >/dev/null
+            manager: git clone https://github.com/SchedMD/slurm && sudo cp -R slurm /nfs
+            workers: sudo cp -R /nfs/slurm ~
+            hosts:   cd slurm && sudo ./configure --enable-debug --with-pmix --with-munge --enable-deprecated
+            hosts:   cd slurm && sudo make -j install > /dev/null
+            """
 
-        results = Host.ssh(hosts=hosts, command='sudo useradd slurm')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=manager, command='sudo cp -R /usr/lib/pmix /nfs')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo cp -R /nfs/pmix /usr/lib')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=hosts, command='cd /usr/lib/pmix/source/ && sudo '
-                                                './autogen.sh && cd ../build/2.1/ && sudo ../../source/configure '
-                                                '--prefix=/usr/local && '
-                                                'sudo make -j install >/dev/null')
-        print(Printer.write(results))
+        Slurm.script_executor(script, hosts=hosts, manager=manager, workers=workers)
 
-        results = Host.ssh(hosts=manager, command='git clone https://github.com/SchedMD/slurm && sudo cp -R slurm '
-                                                  '/nfs')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo cp -R /nfs/slurm ~')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=hosts, command='cd slurm && sudo ./configure --enable-debug --with-pmix '
-                                                '--with-munge --enable-deprecated')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=hosts, command='cd slurm && sudo make -j install > /dev/null')
-        print(Printer.write(results))
+
         '''
         results = Host.ssh(hosts=hosts, command='wget '
                                                 'https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.2.tar.gz')
@@ -699,15 +595,14 @@ class Slurm:
         results = Host.ssh(hosts=hosts, command='sudo rm openmpi-4.1.2.tar.gz')
         print(Printer.write(results))
         '''
-        script = textwrap.dedent(
-            f"""
-            sudo curl -L https://raw.githubusercontent.com/cloudmesh/cloudmesh-mpi/main/doc/chapters/slurm/configs/slurm.conf > ~/slurm.conf
-            sudo mv ~/slurm.conf /usr/local/etc/
-            sudo sed -i 's/SlurmctldHost=workstation/SlurmctldHost={manager}({trueIP})/g' /usr/local/etc/slurm.conf
-            sudo sed -i "$(( $(wc -l </usr/local/etc/slurm.conf)-2+1 )),$ d" /usr/local/etc/slurm.conf
-            """).strip()
-        Slurm.hostexecute(script, manager)
-        # possibly replace with script_executor
+
+        script = f"""
+            manager: sudo curl -L https://raw.githubusercontent.com/cloudmesh/cloudmesh-mpi/main/doc/chapters/slurm/configs/slurm.conf > ~/slurm.conf
+            manager: sudo mv ~/slurm.conf /usr/local/etc/
+            manager: sudo sed -i 's/SlurmctldHost=workstation/SlurmctldHost={manager}({trueIP})/g' /usr/local/etc/slurm.conf
+            manager: sudo sed -i "$(( $(wc -l </usr/local/etc/slurm.conf)-2+1 )),$ d" /usr/local/etc/slurm.conf
+            """
+        Slurm.script_executor(script, manager=manager, workers=workers)
         results = Host.ssh(hosts=workers, command="cat /proc/sys/kernel/hostname")
         print(Printer.write(results))
         hostnames = []
@@ -745,18 +640,17 @@ class Slurm:
                                command=command)
             print(Printer.write(results))
 
-        script = textwrap.dedent(
-            f"""
-            echo "PartitionName=mycluster Nodes={workers} Default=YES MaxTime=INFINITE State=UP" | sudo tee /usr/local/etc/slurm.conf -a
-            sudo curl -L https://github.com/cloudmesh/cloudmesh-mpi/raw/main/doc/chapters/slurm/configs/cgroup.conf > ~/cgroup.conf
-            sudo cp ~/cgroup.conf /usr/local/etc/cgroup.conf
-            sudo rm ~/cgroup.conf
-            sudo cp /usr/local/etc/slurm.conf /usr/local/etc/cgroup.conf /nfs
-            sudo cp /etc/munge/munge.key /nfs
-            sudo systemctl enable munge
-            sudo systemctl start munge
-            """).strip()
-        Slurm.hostexecute(script, manager)
+        script = f"""
+            manager: echo "PartitionName=mycluster Nodes={workers} Default=YES MaxTime=INFINITE State=UP" | sudo tee /usr/local/etc/slurm.conf -a
+            manager: sudo curl -L https://github.com/cloudmesh/cloudmesh-mpi/raw/main/doc/chapters/slurm/configs/cgroup.conf > ~/cgroup.conf
+            manager: sudo cp ~/cgroup.conf /usr/local/etc/cgroup.conf
+            manager: sudo rm ~/cgroup.conf
+            manager: sudo cp /usr/local/etc/slurm.conf /usr/local/etc/cgroup.conf /nfs
+            manager: sudo cp /etc/munge/munge.key /nfs
+            manager: sudo systemctl enable munge
+            manager: sudo systemctl start munge
+            """
+        Slurm.script_executor(script, manager=manager)
 
 
         # why not invent easier writing where we can mix hosts, workers, manager in multiline scripts?
@@ -783,39 +677,6 @@ class Slurm:
         # hosts: touch ~/.cloudmesh/slurm/step4
 
         Slurm.script_executor(script, hosts=hosts, manger=manager, workers=workers)
-
-        """
-        results = Host.ssh(hosts=workers, command='sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo cp /nfs/cgroup.conf /usr/local/etc/cgroup.conf')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=hosts, command='sudo mkdir /var/spool/slurmd')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=hosts, command='sudo chown -R slurm:slurm /var/spool/')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='cd ~/slurm/etc/ && sudo cp slurmd.service /etc/systemd/system/')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=manager, command='cd ~/slurm/etc/ && sudo cp slurmctld.service /etc/systemd/system/')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo cp /nfs/munge.key /etc/munge/munge.key')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo systemctl enable munge')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo systemctl start munge')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo systemctl enable slurmd')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=workers, command='sudo systemctl start slurmd')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=manager, command='sudo systemctl enable slurmctld')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=manager, command='sudo systemctl start slurmctld')
-        print(Printer.write(results))
-        results = Host.ssh(hosts=hosts, command="touch step4")
-        print(Printer.write(results))
-        StopWatch.stop("Current section time")
-        StopWatch.benchmark()
-        """
 
         print("Rebooting cluster now.")
         banner("After successful reboot, ssh back into manager and test SLURM by issuing $ srun --nodes=3 hostname "
