@@ -77,7 +77,7 @@ machine can be used to `ssh` into each of the Pis.
 To install it, use the command:
 
 ```bash
-(ENV3) you@yourlaptop $ cms slurm pi install as host --hosts=red,red0[1-4] --mount=//dev//sda
+(ENV3) you@yourlaptop $ cms slurm pi install as host --hosts=red,red0[1-4]
 ```
 
 The mount parameter is meant to have double slashes no matter the OS
@@ -86,12 +86,6 @@ of the host.
 The `--hosts` parameter needs to include the hostnames of your
 cluster, including manager and workers, separated by comma using a
 parameterized naming scheme.
-
-The `--mount` parameter points to the mount place of your USB,
-inserted in the top-most blue USB3.0 port (on Pi 4's) on your manager
-PI.
-
-**WARNING:** This USB drive ***will be formatted*** and all data on it will be erased.
 
 The command will take a long time to finish. It may appear to not
 progress at certain points, but please be patient. However they will
