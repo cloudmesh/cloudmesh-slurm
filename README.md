@@ -84,6 +84,9 @@ The `--hosts` parameter needs to include the hostnames of your
 cluster, including manager and workers, separated by comma using a
 parameterized naming scheme.
 
+The user can also specify a `--partition` parameter, as in
+`--partition=mycluster`, to personalize the name of the partition.
+
 The command will take a long time to finish. It may appear to not
 progress at certain points, but please be patient. However they will
 last hopefully not longer than 45 minutes. The reason this takes such
@@ -153,6 +156,9 @@ Run this command to begin SLURM installation:
 ```bash
 pi@red:~/cm/cloudmesh-slurm $ cms slurm pi install --workers=red0[1-4]
 ```
+
+The user can also specify a `--partition` parameter, as in
+`--partition=mycluster`, to personalize the name of the partition.
 
 The user must `ssh` back into the manager after the cluster reboots
 and perform the last command (cms slurm pi install...) 3 more
