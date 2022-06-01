@@ -43,6 +43,7 @@ class Slurm:
     """
     """
 
+    step_location = "~/.cloudmesh/slurm"
 
     @staticmethod
     def script_executor(script, hosts=None, manager=None, workers=None, dryrun=False):
@@ -199,10 +200,8 @@ class Slurm:
         :return:
         :rtype:
         """
-        # TODO: why first conversion to step_number_string as we use f string?
-        step_number_string = str(step_number)
-        just_the_step = f"step{step_number_string}"
-        changed_command = f"ls step{step_number_string}"
+        step = f"step{step_number}"
+        changed_command = f"ls {Slurm.step_location}{step}"
         results = Host.ssh(hosts=device, command=changed_command)
         print(Printer.write(results))
         step_done = True
@@ -217,8 +216,8 @@ class Slurm:
                     break
                 else:
                     sleeping = False
-        if (just_the_step in str(entry["stdout"]) and 'cannot access' in str(entry["stdout"])) or \
-                (just_the_step in str(entry["stderr"]) and 'cannot access' in str(entry["stderr"])):
+        if (step in str(entry["stdout"]) and 'cannot access' in str(entry["stdout"])) or \
+                (step in str(entry["stderr"]) and 'cannot access' in str(entry["stderr"])):
             step_done = False
             entry["success"] = "False"
         return step_done
@@ -323,9 +322,9 @@ class Slurm:
                 quotation marks): \n'''))
         else:
             user_input_workers = workers
-        results = Host.ssh(hosts=manager, command="touch user_input_workers")
+        results = Host.ssh(hosts=manager, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.step_location}user_input_workers")
         print(Printer.write(results))
-        results = Host.ssh(hosts=manager, command=f"echo '{user_input_workers}' >> user_input_workers")
+        results = Host.ssh(hosts=manager, command=f"echo '{user_input_workers}' >> {Slurm.step_location}user_input_workers")
         print(Printer.write(results))
 
         # intro and asking for workers from user
@@ -333,7 +332,7 @@ class Slurm:
 
         hosts = Slurm.hostsVariable(manager, workers)
 
-        results = Host.ssh(hosts=hosts, command="touch step0")
+        results = Host.ssh(hosts=hosts, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.location}step0")
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
@@ -387,7 +386,7 @@ class Slurm:
         listOfManager = [manager]
         Slurm.try_installing_package("sudo apt install ntpdate -y", listOfManager)
         Slurm.try_installing_package("sudo apt install ntpdate -y", listOfWorkers)
-        results = Host.ssh(hosts=hosts, command="touch step1")
+        results = Host.ssh(hosts=hosts, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.step_location}step1")
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
@@ -440,7 +439,7 @@ class Slurm:
         nfs = Nfs()
         nfs.install(manager)
         nfs.share("/nfs,/nfs", hosts)
-        results = Host.ssh(hosts=hosts, command="touch step2")
+        results = Host.ssh(hosts=hosts, command=f"mkdir -p {Slurm.step_location} && touch {Slurm.step_location}step2")
         print(Printer.write(results))
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
@@ -514,11 +513,11 @@ class Slurm:
             "cd /usr/lib/pmix && sudo git clone https://github.com/openpmix/openpmix.git source "
             "&& cd source/ && git branch -a && sudo git checkout v2.1 && "
             "sudo git pull", listOfManager)
-        script = """
+        script = f"""
             manager: sudo systemctl status nfs-server.service
             manager: sudo systemctl start nfs-server.service
             manager: sudo mount -a
-            hosts:   touch step3
+            hosts:   mkdir -p {Slurm.step_location} && touch {Slurm.step_location}step3
             """
         Slurm.script_executor(script,manager=manager, hosts=hosts)
         StopWatch.stop("Current section time")
@@ -655,7 +654,7 @@ class Slurm:
 
         # why not invent easier writing where we can mix hosts, workers, manager in multiline scripts?
         # maybe convert to class with instantiation so you can have self.manager, self.hosts, self.workers?
-        script = '''
+        script = f'''
             workers: sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf
             workers: sudo cp /nfs/cgroup.conf /usr/local/etc/cgroup.conf
             hosts:   sudo mkdir /var/spool/slurmd
@@ -669,13 +668,8 @@ class Slurm:
             workers: sudo systemctl start slurmd
             manager: sudo systemctl enable slurmctld
             manager: sudo systemctl start slurmctld
-            hosts:   touch step4
+            hosts:   mkdir -p {Slurm.step_location} && touch {Slurm.step_location}step4
             '''
-        # touch step4 would become ? mkdir -p ~/.clooudmesh/slurm && touch step4 
-        # or 
-        # hosts: mkdir -p ~/.cloudmesh/slurm
-        # hosts: touch ~/.cloudmesh/slurm/step4
-
         Slurm.script_executor(script, hosts=hosts, manger=manager, workers=workers)
 
         print("Rebooting cluster now.")
