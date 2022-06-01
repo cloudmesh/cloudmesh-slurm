@@ -151,18 +151,13 @@ The slurm command should appear in the list.
 Run this command to begin SLURM installation:
 
 ```bash
-pi@red:~/cm/cloudmesh-slurm $ cms slurm pi install --workers=red0[1-4] --mount=/dev/sda
+pi@red:~/cm/cloudmesh-slurm $ cms slurm pi install --workers=red0[1-4]
 ```
 
 The user must `ssh` back into the manager after the cluster reboots
-and perform the last command (cms slurm pi install...)  3 more
+and perform the last command (cms slurm pi install...) 3 more
 times. The script will inform the user when this is no longer
 necessary and SLURM is fully installed.
-
-Notice this method does not need two forward slashes in `--mount`
-because it is done on Raspberry Pi OS and not Windows. It can only be
-done on Raspberry Pi OS because the method is purposefully done on the
-manager Pi, to begin with.
 
 You can check if SLURM is installed by issuing on the manager:
 
@@ -196,7 +191,7 @@ and workers listed as the same hostname. In the following example,
 `red` is the single-node.
 
 ```bash
-cms slurm pi install as host --hosts=red,red --mount=//dev//sda
+cms slurm pi install as host --hosts=red,red
 ```
 
 ## 5.0 MPI Example
