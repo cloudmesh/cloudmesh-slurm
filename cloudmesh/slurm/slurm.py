@@ -376,11 +376,11 @@ class Slurm:
         else:
             manager = Slurm.managerNamer()
             workers = Slurm.read_user_input_workers(manager)
-        if not mount:
+        """if not mount:
             if not yn_choice(
                     'Please insert USB storage medium into top USB 3.0 (blue) port on manager pi and press y when done'):
                 Console.error("You pressed no but the script is continuing as normal...")
-                return ""
+                return """""
 
         # executing reading of workers
 
@@ -686,7 +686,7 @@ class Slurm:
 
         script = textwrap.dedent(
             f"""
-            echo "PartitionName=default Nodes={workers} Default=YES MaxTime=INFINITE State=UP" | sudo tee /usr/local/etc/slurm.conf -a
+            echo "PartitionName=mycluster Nodes={workers} Default=YES MaxTime=INFINITE State=UP" | sudo tee /usr/local/etc/slurm.conf -a
             sudo curl -L https://github.com/cloudmesh/cloudmesh-mpi/raw/main/doc/chapters/slurm/configs/cgroup.conf > ~/cgroup.conf
             sudo cp ~/cgroup.conf /usr/local/etc/cgroup.conf
             sudo rm ~/cgroup.conf

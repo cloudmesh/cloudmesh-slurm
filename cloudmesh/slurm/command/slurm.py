@@ -79,8 +79,8 @@ class SlurmCommand(PluginCommand):
             from cloudmesh.slurm.workflow import Workflow
             print(arguments.mount)
             print(arguments["--mount"])
-            if os_is_windows():
-                arguments.mount = arguments.mount.replace("\\", "/")
+            #if os_is_windows():
+            #    arguments.mount = arguments.mount.replace("\\", "/")
 
             VERBOSE(arguments)
 
