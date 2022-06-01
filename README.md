@@ -80,9 +80,6 @@ To install it, use the command:
 (ENV3) you@yourlaptop $ cms slurm pi install as host --hosts=red,red0[1-4]
 ```
 
-The mount parameter is meant to have double slashes no matter the OS
-of the host.
-
 The `--hosts` parameter needs to include the hostnames of your
 cluster, including manager and workers, separated by comma using a
 parameterized naming scheme.
