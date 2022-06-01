@@ -57,12 +57,9 @@ class Slurm:
         '''
         """
 
-        #
         _script = textwrap.dedent(script).strip().splitlines()
-        print (f">{_script}<")
         for line in _script:
             if not line.startswith("#") or ":" not in line:
-                print (f"line >{line}<")
                 where, command = line.split(":",1)
                 where = where.strip()
                 command = command.strip()
@@ -79,7 +76,6 @@ class Slurm:
                     print(Printer.write(results))
                 else:
                     print(f"[{where}]", f"<{command}>")
-
 
     # TODO: invert parameters rename hmanager to host: host=None, script=None
     @staticmethod
