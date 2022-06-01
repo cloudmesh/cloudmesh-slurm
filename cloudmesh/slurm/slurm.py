@@ -68,9 +68,9 @@ class Slurm:
                     if where == "workers":
                       where = workers
                     elif where == "hosts":
-                      where == hosts
+                      where = hosts
                     elif where == "manager":
-                      where == manager
+                      where = manager
                     else:
                       where = None
                     results = Host.ssh(hosts=where, command=command)
@@ -519,7 +519,7 @@ class Slurm:
             manager: sudo mount -a
             hosts:   mkdir -p {Slurm.step_location} && touch {Slurm.step_location}step3
             """
-        Slurm.script_executor(script,manager=manager, hosts=hosts)
+        Slurm.script_executor(script, manager=manager, hosts=hosts)
         StopWatch.stop("Current section time")
         StopWatch.benchmark()
         Slurm.tell_user_rebooting(hosts)
@@ -670,7 +670,7 @@ class Slurm:
             manager: sudo systemctl start slurmctld
             hosts:   mkdir -p {Slurm.step_location} && touch {Slurm.step_location}step4
             '''
-        Slurm.script_executor(script, hosts=hosts, manger=manager, workers=workers)
+        Slurm.script_executor(script, hosts=hosts, manager=manager, workers=workers)
 
         print("Rebooting cluster now.")
         banner("After successful reboot, ssh back into manager and test SLURM by issuing $ srun --nodes=3 hostname "
