@@ -41,6 +41,7 @@ from cloudmesh.burn.sdcard import SDCard
 
 class Slurm:
 
+    # TODO: invert parameters rename hmanager to host: host=None, script=None
     @staticmethod
     def hostexecute(script, manager):
         """
@@ -57,6 +58,7 @@ class Slurm:
             results = Host.ssh(hosts=manager, command=command)
             print(Printer.write(results))
 
+    # TODDO: get_manager_name(): ? should print be done after get_manager_name
     @staticmethod
     def managerNamer():
         """
@@ -64,6 +66,7 @@ class Slurm:
         :return:
         :rtype:
         """
+        # why not Shell.run ?
         manager = subprocess.run(['hostname'],
                                  capture_output=True,
                                  text=True).stdout.strip()
@@ -73,6 +76,7 @@ class Slurm:
     # defining function which formulates hosts variable
     # the hosts variable has manager and workers
 
+    # TODO: get_hosts(manager, workers) ? why is return hosts in ( )?
     @staticmethod
     def hostsVariable(manager, workers):
         """
@@ -105,10 +109,10 @@ class Slurm:
             workers = str(entry["stdout"])
             return workers
 
-    # tell user to ssh back to manager on reboot and reboot
     @staticmethod
     def tell_user_rebooting(hosts):
         """
+        tell user to ssh back to manager on reboot and reboot
 
         :param hosts:
         :type hosts:
@@ -159,6 +163,7 @@ class Slurm:
         :return:
         :rtype:
         """
+        # TODO: why first conversion to step_number_string as we use f string?
         step_number_string = str(step_number)
         just_the_step = f"step{step_number_string}"
         changed_command = f"ls step{step_number_string}"
@@ -603,6 +608,9 @@ class Slurm:
 
         banner("This will take a while...")
 
+        # see comment on script executor
+        #
+
         results = Host.ssh(hosts=hosts, command='sudo useradd slurm')
         print(Printer.write(results))
         results = Host.ssh(hosts=manager, command='sudo cp -R /usr/lib/pmix /nfs')
@@ -647,6 +655,7 @@ class Slurm:
             sudo sed -i "$(( $(wc -l </usr/local/etc/slurm.conf)-2+1 )),$ d" /usr/local/etc/slurm.conf
             """).strip()
         Slurm.hostexecute(script, manager)
+        # possibly replace with script_executor
         results = Host.ssh(hosts=workers, command="cat /proc/sys/kernel/hostname")
         print(Printer.write(results))
         hostnames = []
@@ -696,6 +705,47 @@ class Slurm:
             sudo systemctl start munge
             """).strip()
         Slurm.hostexecute(script, manager)
+
+        """        
+        # why not invent easier writing where we can mix hosts, workers, manager in multiline scripts?
+        # maybe convert to class with instantiation so you can have self.manager, self.hosts, self.workers?
+        script = \
+            '''
+            workers: sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf
+            workers: sudo cp /nfs/cgroup.conf /usr/local/etc/cgroup.conf
+            hosts:   sudo mkdir /var/spool/slurmd
+            hosts:   sudo chown -R slurm:slurm /var/spool/
+            workers: cd ~/slurm/etc/ && sudo cp slurmd.service /etc/systemd/system/
+            manager: cd ~/slurm/etc/ && sudo cp slurmctld.service /etc/systemd/system/
+            workers: sudo cp /nfs/munge.key /etc/munge/munge.key
+            workers: sudo systemctl enable munge
+            workers: sudo systemctl start munge
+            workers: sudo systemctl enable slurmd
+            workers: sudo systemctl start slurmd
+            manager: sudo systemctl enable slurmctld
+            manager: sudo systemctl start slurmctld
+            hosts:   touch step4
+            '''
+        
+        def script_executor(script):
+            _script = textwrap.dedent(script)
+            for line in _script.splitlines():
+                where, command = line.split(":",1)
+                where = where.strip()
+                command = command.strip()
+                if where == "workers":
+                    where = workers
+                elif where == "hosts":
+                    where == hosts
+                elif where == "manager":
+                    where == manager
+                else:
+                    where = None
+                results = Host.ssh(hosts=where, command=command)
+                print(Printer.write(results))
+                
+            script_executor(script)
+        """
 
         results = Host.ssh(hosts=workers, command='sudo cp /nfs/slurm.conf /usr/local/etc/slurm.conf')
         print(Printer.write(results))
