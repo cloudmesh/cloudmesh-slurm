@@ -255,9 +255,12 @@ class Slurm:
     # output
     #  red000  -> red, red001, red002, red003
     @staticmethod
-    def step0_identify_workers(workers=None, is_host_install=False,
-                               input_manager=None, **kwargs):  # step0_identify_workers
+    def step0_identify_workers(workers=None,
+                               is_host_install=False,
+                               input_manager=None,
+                               **kwargs):
         """
+        step0_identify_workers
 
         :param workers:
         :type workers:
@@ -300,9 +303,12 @@ class Slurm:
         StopWatch.benchmark()
 
     @staticmethod
-    def step1_os_update(workers=None, is_host_install=False,
-                        input_manager=None, hosts=None, **kwargs):  # step1_os_update
+    def step1_os_update(workers=None,
+                        is_host_install=False,
+                        input_manager=None,
+                        hosts=None, **kwargs):
         """
+        step1_os_update
 
         :param workers:
         :type workers:
@@ -352,10 +358,14 @@ class Slurm:
         Slurm.tell_user_rebooting(hosts)
 
     @staticmethod
-    def step2_setup_shared_file_system(workers=None, is_host_install=False,
-                                       input_manager=None, mount=None, hosts=None,
-                                       **kwargs):  # step2_setup_shared_file_system
+    def step2_setup_shared_file_system(workers=None,
+                                       is_host_install=False,
+                                       input_manager=None,
+                                       mount=None,
+                                       hosts=None,
+                                       **kwargs):
         """
+        step2_setup_shared_file_system
 
         :param workers:
         :type workers:
@@ -393,7 +403,7 @@ class Slurm:
             hosts = Slurm.hostsVariable(manager, workers)
         nfs = Nfs()
         nfs.install(manager)
-        nfs.share("/nfs,/nfs",hosts)
+        nfs.share("/nfs,/nfs", hosts)
         """if not mount:
             card = SDCard()
             card.info()
@@ -494,9 +504,12 @@ class Slurm:
         Slurm.tell_user_rebooting(hosts)
 
     @staticmethod
-    def step3_install_openmpi(workers=None, is_host_install=False,
-                              input_manager=None, hosts=None, **kwargs):  # step3_install_openmpi
+    def step3_install_openmpi(workers=None,
+                              is_host_install=False,
+                              input_manager=None,
+                              hosts=None, **kwargs):
         """
+        step3_install_openmpi
 
         :param workers:
         :type workers:
@@ -572,9 +585,12 @@ class Slurm:
         Slurm.tell_user_rebooting(hosts)
 
     @staticmethod
-    def step4_install_pmix_and_slurm(workers=None, is_host_install=False,
-                                     input_manager=None, hosts=None, **kwargs):  # step4_install_pmix_and_slurm
+    def step4_install_pmix_and_slurm(workers=None,
+                                     is_host_install=False,
+                                     input_manager=None,
+                                     hosts=None, **kwargs):
         """
+        step4_install_pmix_and_slurm
 
         :param workers:
         :type workers:
@@ -794,8 +810,13 @@ class Slurm:
 
     # Here begins the script aside from the function definitions. In this part we run the steps by calling functions.
     @staticmethod
-    def install(interactive=False, workers=None, selected_os="raspberry", mount=None, step=None, is_host_install=False,
-                input_manager=None, hosts=None):
+    def install(interactive=False,
+                workers=None,
+                selected_os="raspberry",
+                mount=None, step=None,
+                is_host_install=False,
+                input_manager=None,
+                hosts=None):
         """
 
         :param interactive:
