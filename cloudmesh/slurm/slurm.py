@@ -726,6 +726,10 @@ class Slurm:
             manager: sudo systemctl start slurmctld
             hosts:   touch step4
             '''
+        # touch step4 would become ? mkdir -p ~/.clooudmesh/slurm && touch step4 
+        # or 
+        # hosts: mkdir -p ~/.cloudmesh/slurm
+        # hosts: touch ~/.cloudmesh/slurm/step4
         
         def script_executor(script):
             _script = textwrap.dedent(script)
