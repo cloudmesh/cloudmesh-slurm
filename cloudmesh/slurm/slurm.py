@@ -577,7 +577,7 @@ class Slurm:
         '''
 
         script = f"""
-            manager: sudo curl -L https://raw.githubusercontent.com/cloudmesh/cloudmesh-mpi/main/doc/chapters/slurm/configs/slurm.conf > ~/slurm.conf
+            manager: sudo curl -L https://raw.githubusercontent.com/cloudmesh/cloudmesh-mpi/main/cloudmesh/mpi/etc/slurm.conf > ~/slurm.conf
             manager: sudo mv ~/slurm.conf /usr/local/etc/
             manager: sudo sed -i 's/SlurmctldHost=workstation/SlurmctldHost={manager}({trueIP})/g' /usr/local/etc/slurm.conf
             manager: sudo sed -i "$(( $(wc -l </usr/local/etc/slurm.conf)-2+1 )),$ d" /usr/local/etc/slurm.conf
@@ -618,7 +618,7 @@ class Slurm:
 
         script = f'''
             manager: echo "PartitionName={partition} Nodes={workers} Default=YES MaxTime=INFINITE State=UP" | sudo tee /usr/local/etc/slurm.conf -a
-            manager: sudo curl -L https://github.com/cloudmesh/cloudmesh-mpi/raw/main/doc/chapters/slurm/configs/cgroup.conf > ~/cgroup.conf
+            manager: sudo curl -L https://github.com/cloudmesh/cloudmesh-mpi/raw/main/cloudmesh/mpi/etc/cgroup.conf > ~/cgroup.conf
             manager: sudo cp ~/cgroup.conf /usr/local/etc/cgroup.conf
             manager: sudo rm ~/cgroup.conf
             manager: sudo cp /usr/local/etc/slurm.conf /usr/local/etc/cgroup.conf /nfs
