@@ -21,8 +21,8 @@ class SlurmCommand(PluginCommand):
         ::
 
           Usage:
-                slurm pi install [--workers=WORKERS] [--partition=PARTITION]
-                slurm pi install as host [--os=OS] [--hosts=HOSTS] [--partition=PARTITION]
+                slurm pi install [--workers=WORKERS] [--partition=pis]
+                slurm pi install as host [--os=OS] [--hosts=HOSTS] [--partition=pis]
                 slurm pi example --n=NUMBER
                 slurm pi sbatch initialize [--hosts=HOSTS]
 
@@ -33,9 +33,10 @@ class SlurmCommand(PluginCommand):
           cms slurm pi install as host --hosts=red,red
 
           Arguments:
-              COMMAND  the slurm command to be executed [default: salloc]
+              COMMAND         the slurm command to be executed [default: salloc]
 
           Options:
+              --partition=pis     specifies the name of the slurm partition to be created [default: pis]
 
           Description:
 

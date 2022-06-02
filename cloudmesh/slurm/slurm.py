@@ -268,7 +268,7 @@ class Slurm:
     def step0_identify_workers(workers=None,
                                is_host_install=False,
                                input_manager=None,
-                               partition=None,
+                               partition='pis',
                                **kwargs):
         """
         step0_identify_workers
@@ -320,7 +320,7 @@ class Slurm:
                         is_host_install=False,
                         input_manager=None,
                         hosts=None,
-                        partition=None,
+                        partition='pis',
                         **kwargs):
         """
         step1_os_update
@@ -379,7 +379,7 @@ class Slurm:
                                        is_host_install=False,
                                        input_manager=None,
                                        hosts=None,
-                                       partition=None,
+                                       partition='pis',
                                        **kwargs):
         """
         step2_setup_shared_file_system
@@ -427,7 +427,7 @@ class Slurm:
                               is_host_install=False,
                               input_manager=None,
                               hosts=None,
-                              partition=None, **kwargs):
+                              partition='pis', **kwargs):
         """
         step3_install_openmpi
 
@@ -507,7 +507,7 @@ class Slurm:
                                      is_host_install=False,
                                      input_manager=None,
                                      hosts=None,
-                                     partition=None, **kwargs):
+                                     partition='pis', **kwargs):
         """
         step4_install_pmix_and_slurm
 
@@ -676,6 +676,8 @@ class Slurm:
         :type input_manager:
         :param hosts:
         :type hosts:
+        :param partition:
+        :type partition:
         :return:
         :rtype:
         """
