@@ -269,9 +269,10 @@ In the case that cloudmesh-mpi is not downloaded:
 (ENV3) pi@red:~ $ python 100jobs.py
 ```
 
-This program only works if the `nfs` shared file system is installed
-on the cluster. The shared file system should already be installed if
-the SLURM installation has been run successfully.
+This program only works if run on the home directory of the manager node,
+and if the `nfs` shared file system is installed on the cluster. The 
+shared file system should already be installed if the SLURM installation 
+has been run successfully.
 
 The output files of the 100 jobs can be found inside `/nfs/tmp/`:
 
