@@ -249,6 +249,9 @@ for easy customization of job parameters, such as where the output
 of the commands should reside, how much time should be allotted for
 the job, how much memory should be allotted per CPU, and others.
 
+The Python program, `100jobs.py`, is located at
+<https://github.com/cloudmesh/cloudmesh-mpi/blob/main/examples/slurm/100jobs.py>
+
 To use the cloudmesh-mpi Python program, named 100 jobs for its
 creation of 100 jobs that execute the `sleep` command for a short
 amount of time, execute the following commands.
