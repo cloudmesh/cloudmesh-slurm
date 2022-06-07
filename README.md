@@ -241,6 +241,56 @@ pi@red01:~ $
 
 This works in home dir, but not if you stand in other dir.
 
+## 7.0 Using sbatch
+
+The cloudmesh-mpi repository contains a Python file that automatically
+creates job submissions using the `sbatch` command. `sbatch` allows
+for easy customization of job parameters, such as where the output
+of the commands should reside, how much time should be allotted for
+the job, how much memory should be allotted per CPU, and others.
+
+To use the cloudmesh-mpi Python program, named 100 jobs for its
+creation of 100 jobs that execute the `sleep` command for a short
+amount of time, execute the following commands.
+
+In the case that cloudmesh-mpi is not downloaded:
+
+```bash
+(ENV3) pi@red:~ $ cd cm
+(ENV3) pi@red:~/cm $ git clone https://github.com/cloudmesh/cloudmesh-mpi.git
+(ENV3) pi@red:~/cm $ cd cloudmesh-mpi/examples/slurm
+(ENV3) pi@red:~/cm/cloudmesh-mpi/examples/slurm $ cp 100jobs.py ~
+(ENV3) pi@red:~/cm/cloudmesh-mpi/examples/slurm $ cd
+(ENV3) pi@red:~ $ python 100jobs.py
+```
+
+This program only works if the `nfs` shared file system is installed
+on the cluster. The shared file system should already be installed if
+the SLURM installation has been run successfully.
+
+The output files of the 100 jobs can be found inside `/nfs/tmp/`:
+
+```bash
+(ENV3) pi@red:~ $ cat job-0.slurm
+#!/bin/bash
+#SBATCH -o job-0.out
+#SBATCH -e job-0.err
+
+hostname
+echo $SLURM_JOB_NAME
+NAME="${SLURM_JOB_NAME%%.*}"
+echo $NAME
+sleep 5.473056730256757
+
+cp ${NAME}.out /nfs/tmp/
+cp ${NAME}.err /nfs/tmp/
+(ENV3) pi@red:~ $ cd /nfs/tmp
+(ENV3) pi@red:/nfs/tmp $ cat job-0.out
+red01
+job-0.slurm
+job-0
+```
+
 ## Using Slurm on local PI file space
 
 Often it is time consuming during a slurm run to copy all the files
@@ -249,8 +299,8 @@ NFS. Furthermore, if you have a lareg number of nodes this could be
 problematic as the nodes compeet with each other. In such cases its is
 useful to be able to copy the data and potentially programs before you
 run sbatch. However, you must dod this for all nodes that you expect
-to be using for the batch job. As we are in full controll of the
-raspberry PI cluster, we simply copy it to all of them.
+to be using for the batch job. As we are in full control of the
+Raspberry Pi cluster, we simply copy it to all of them.
 
 Let us assume we hafe a clutsre burned for red,red0[1-2]. Let us
 create a simple program and distribute it to the workers.
