@@ -120,7 +120,7 @@ class SlurmCommand(PluginCommand):
                 r = Shell.run(command)
                 print(r)
             except subprocess.CalledProcessError as e:
-                if os_is_windows:
+                if os_is_windows():
                     banner('You may have run the command on host by mistake. Please run '
                            'this command on the Pi.')
 
